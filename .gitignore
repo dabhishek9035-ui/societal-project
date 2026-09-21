@@ -1,0 +1,25 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+venv/
+env/
+
+# Generated Data & Artifacts
+data/features/
+data/sequences/
+data/splits/
+data/*.joblib
+data/*.csv
+!data/imd_data/*.csv
+
+# Model Weights
+train/models/
+*.pth
+
+# Evaluation Outputs
+evaluation/plots/
+evaluation/metrics_summary.csv
+
+# IDE Settings
+.vscode/
+.idea/
