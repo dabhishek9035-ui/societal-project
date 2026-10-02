@@ -6,7 +6,7 @@ import { Area, Brush, CartesianGrid, ComposedChart, Line, ReferenceArea, Referen
 import { CalendarDays, ChevronLeft, ChevronRight, CircleHelp, Clock3, MapPin, Play, RotateCcw, Search, Square, Waves } from 'lucide-react';
 import { fetchDams, fetchForecast, fetchHistory } from '@/data/api';
 import { USE_MOCK } from '@/config';
-import type { Dam, Horizon, LevelPoint } from '@/data/types';
+import type { Dam, ForecastSource, Horizon, LevelPoint } from '@/data/types';
 import { formatDate, Eyebrow, Meter, PageHeading, Reveal } from '@/components/Ui';
 import { useAppStore } from '@/state/store';
 
@@ -24,7 +24,7 @@ const dateToX = (value: string) => new Date(`${value}T12:00:00`).getTime();
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const fmt = (n: number) => n.toLocaleString('en-IN');
 
-type Metric = { date: string; predicted: number; actual: number; persistence: number };
+type Metric = { date: string; predicted: number; actual: number; persistence: number; source: ForecastSource };
 type ChartPoint = {
   x: number;
   date: string;
@@ -522,6 +522,18 @@ export default function PredictionsPage() {
     cachedForecast.horizon === horizon
       ? cachedForecast
       : undefined;
+  const isHistoricalEstimate = forecast?.source === 'historical_estimate';
+  const isDemoForecast = forecast?.source === 'demo';
+  const hasForecastBand = forecast?.predictions.some((point) => point.lower !== undefined && point.upper !== undefined) ?? false;
+  const forecastMethodLabel = isHistoricalEstimate
+    ? 'HISTORICAL ESTIMATE'
+    : isDemoForecast
+      ? 'DEMO FORECAST'
+      : forecast?.strategies?.[horizon] === 'recent_trend'
+        ? 'TREND BASELINE'
+        : forecast?.strategies?.[horizon] === 'persistence'
+          ? 'PERSISTENCE'
+          : 'DELTA-LSTM';
 
   const currentLevel = historyThroughAsOf.at(-1)?.level ?? dam?.lastRecorded.level ?? 0;
   const predictedPoint = forecast?.predictions.at(-1);
@@ -541,7 +553,7 @@ export default function PredictionsPage() {
     const pred = forecast.predictions.at(-1);
     if (actualPoint && pred) {
       recordedSteps.current.add(key);
-      setMetrics((items) => [...items, { date: debouncedAsOf, predicted: pred.level, actual: actualPoint.level, persistence: forecast.persistence[horizon] }].slice(-32));
+      setMetrics((items) => [...items, { date: debouncedAsOf, predicted: pred.level, actual: actualPoint.level, persistence: forecast.persistence[horizon], source: forecast.source ?? 'trained_model' }].slice(-32));
     }
     pendingStep.current = false;
   }, [dam?.id, debouncedAsOf, horizon, forecastQuery.isSuccess, forecastQuery.isFetching, forecast]);
@@ -648,6 +660,10 @@ export default function PredictionsPage() {
   const mae = metrics.length ? metrics.reduce((s, m) => s + Math.abs(m.predicted - m.actual), 0) / metrics.length : 0;
   const rmse = metrics.length ? Math.sqrt(metrics.reduce((s, m) => s + (m.predicted - m.actual) ** 2, 0) / metrics.length) : 0;
   const beats = metrics.length ? (metrics.filter((m) => Math.abs(m.predicted - m.actual) < Math.abs(m.persistence - m.actual)).length / metrics.length) * 100 : 0;
+  const metricsSource = metrics.length && metrics.every((item) => item.source === metrics[0].source) ? metrics[0].source : 'mixed';
+  const metricsSourceLabel = metrics.length === 0
+    ? isHistoricalEstimate ? 'ESTIMATE' : isDemoForecast ? 'DEMO' : 'MODEL'
+    : metricsSource === 'historical_estimate' ? 'ESTIMATE' : metricsSource === 'demo' ? 'DEMO' : metricsSource === 'mixed' ? 'MIXED FORECAST' : 'MODEL';
   const errorPath = metrics.map((m, i) => `${i === 0 ? 'M' : 'L'} ${i * 18} ${34 - Math.min(29, Math.abs(m.predicted - m.actual) * 2)}`).join(' ');
 
   const filteredDams = dams.filter((item) => `${item.name} ${item.location} ${item.river}`.toLowerCase().includes(search.toLowerCase()));
@@ -740,7 +756,7 @@ export default function PredictionsPage() {
                   </div>
 
                   <div className="control">
-                  <div className="control-label"><span>Forecast horizon</span><strong>{forecast?.strategies?.[horizon] === 'recent_trend' ? 'TREND BASELINE' : forecast?.strategies?.[horizon] === 'persistence' ? 'PERSISTENCE' : 'DELTA-LSTM'}</strong></div>
+                  <div className="control-label"><span>Forecast horizon</span><strong>{forecastMethodLabel}</strong></div>
                     <div className="segmented-control" role="group" aria-label="Forecast horizon">
                       {HORIZONS.map((item) => (
                         <button key={item} className={item === horizon ? 'selected' : ''} onClick={() => setHorizon(item)}>
@@ -776,7 +792,7 @@ export default function PredictionsPage() {
                   <span>{(currentFraction * 100).toFixed(0)}% of active range</span>
                 </div>
                 <div className="glass-card kpi">
-                  <span className="data-label">Predicted · {horizon}-day</span>
+                  <span className="data-label">{isHistoricalEstimate ? "Estimated" : isDemoForecast ? "Demo forecast" : "Predicted"} · {horizon}-day</span>
                   <strong>{forecastReady ? <>{fmt(predictedLevel)} <small>{dam.unit}</small></> : '—'}</strong>
                   <span>
                     {forecastReady
@@ -860,7 +876,7 @@ export default function PredictionsPage() {
                   <div className="chart-foot">
                     <span><span className="risk-dot" /> Red zone begins above FRL</span>
                     <span>
-                      {forecastQuery.isFetching ? 'Updating forecast…' : 'Shaded band shows the confidence range, which widens with horizon'} <CircleHelp size={12} />
+                      {forecastQuery.isFetching ? 'Updating forecast' : isHistoricalEstimate ? 'Historical estimate only; uncertainty range is not calibrated' : isDemoForecast ? 'Illustrative demo forecast and range' : hasForecastBand ? 'Shaded band shows the confidence range, which widens with horizon' : 'Uncertainty band unavailable for this forecast'} <CircleHelp size={12} />
                     </span>
                   </div>
                 </section>
@@ -879,9 +895,9 @@ export default function PredictionsPage() {
                 <section className="glass-card backtest-card">
                   <div className="card-head">
                     <div>
-                      <Eyebrow>DATE TRAVEL & BACKTEST</Eyebrow>
+                      <Eyebrow>{isHistoricalEstimate ? 'DATE TRAVEL & HISTORICAL ESTIMATE' : 'DATE TRAVEL & BACKTEST'}</Eyebrow>
                       <h2>Step through the record</h2>
-                      <p>Rebuild a forecast from any observation date and compare it with what followed.</p>
+                      <p>{isHistoricalEstimate ? 'Historical dates use a synthetic estimate, not the trained model; compare it with the observed readings that followed.' : 'Rebuild a forecast from an observation date and compare it with what followed.'}</p>
                     </div>
                     <button type="button" className="reset-session" onClick={() => { setMetrics([]); recordedSteps.current.clear(); pendingStep.current = false; }}>
                       <RotateCcw size={13} /> Reset session
@@ -925,8 +941,8 @@ export default function PredictionsPage() {
                       <strong>{modelError !== undefined && actual ? `${((modelError / Math.max(0.01, Math.abs(actual.level))) * 100).toFixed(2)}%` : '—'}</strong>
                     </div>
                     <div className="result-stat">
-                      <span className="data-label">Vs. persistence</span>
-                      <strong>{modelError !== undefined && persistenceError !== undefined ? (modelError < persistenceError ? 'Model wins' : 'Baseline wins') : '—'}</strong>
+                      <span className="data-label">{isHistoricalEstimate ? 'Estimate vs. persistence' : isDemoForecast ? 'Demo vs. persistence' : 'Vs. persistence'}</span>
+                      <strong>{modelError !== undefined && persistenceError !== undefined ? (modelError < persistenceError ? (isHistoricalEstimate ? 'Estimate wins' : isDemoForecast ? 'Demo wins' : 'Model wins') : 'Baseline wins') : '—'}</strong>
                     </div>
                   </div>
 
@@ -939,9 +955,9 @@ export default function PredictionsPage() {
                         </svg>
                       )}
                     </div>
-                    <div><span>RUNNING MAE</span><strong>{metrics.length ? `${mae.toFixed(2)} ${dam.unit}` : '—'}</strong></div>
-                    <div><span>RUNNING RMSE</span><strong>{metrics.length ? `${rmse.toFixed(2)} ${dam.unit}` : '—'}</strong></div>
-                    <div><span>BEATS PERSISTENCE</span><strong>{metrics.length ? `${beats.toFixed(0)}%` : '—'}</strong></div>
+                    <div><span>RUNNING {metricsSourceLabel} MAE</span><strong>{metrics.length ? `${mae.toFixed(2)} ${dam.unit}` : '—'}</strong></div>
+                    <div><span>RUNNING {metricsSourceLabel} RMSE</span><strong>{metrics.length ? `${rmse.toFixed(2)} ${dam.unit}` : '—'}</strong></div>
+                    <div><span>{metricsSourceLabel} BEATS PERSISTENCE</span><strong>{metrics.length ? `${beats.toFixed(0)}%` : '—'}</strong></div>
                   </div>
                 </section>
               </Reveal>
@@ -950,9 +966,9 @@ export default function PredictionsPage() {
                 <section className="glass-card confidence-card">
                   <div className="card-head">
                     <div>
-                      <Eyebrow>MODEL CONFIDENCE & PERSISTENCE</Eyebrow>
-                      <h2>How does the model compare?</h2>
-                      <p>Persistence assumes the last observed level holds steady.</p>
+                      <Eyebrow>{isHistoricalEstimate ? 'HISTORICAL ESTIMATE & PERSISTENCE' : isDemoForecast ? 'DEMO FORECAST & PERSISTENCE' : 'MODEL CONFIDENCE & PERSISTENCE'}</Eyebrow>
+                      <h2>{isHistoricalEstimate ? 'How does this estimate compare?' : isDemoForecast ? 'Illustrative demo forecast' : 'How does the model compare?'}</h2>
+                      <p>{isHistoricalEstimate ? 'Historical estimates use a simple frontend heuristic; confidence is not calibrated.' : 'Persistence assumes the last observed level holds steady.'}</p>
                     </div>
                     <span className="tag">NAÏVE BASELINE</span>
                   </div>
@@ -980,7 +996,7 @@ export default function PredictionsPage() {
                             <strong>{confidence ? `${Math.round(confidence * 100)}%` : '—'}</strong>
                           </span>
                           <span className="value-pair">
-                            <span>Model <strong>{prediction !== undefined ? `${fmt(prediction)} ${dam.unit}` : '—'}</strong></span>
+                            <span>{f?.source === "historical_estimate" ? "Estimate" : f?.source === "demo" ? "Demo" : "Model"} <strong>{prediction !== undefined ? `${fmt(prediction)} ${dam.unit}` : '—'}</strong></span>
                             <span>Persistence <strong>{pers !== undefined ? `${fmt(pers)} ${dam.unit}` : '—'}</strong></span>
                           </span>
                           <span className={`skill-note ${skill !== undefined && skill > 0 ? 'positive' : ''}`}>
@@ -995,11 +1011,13 @@ export default function PredictionsPage() {
             </div>
 
             <div className="footnote">
-              <span>MODEL NOTE</span>
+              <span>FORECAST NOTE</span>
               <p>
-                {forecast?.persistence
-                  ? 'Persistence is read from the forecast response when provided; otherwise it uses the final observed level.'
-                  : 'Forecast bands describe model uncertainty. Always use current operating procedures for release decisions.'}
+                {isHistoricalEstimate
+                  ? 'This backdated forecast is a synthetic estimate, not a model backtest. Its confidence range is suppressed because it is not calibrated.'
+                  : isDemoForecast
+                    ? 'Demo data and forecasts are illustrative and do not come from the trained reservoir model.'
+                    : 'The backend applies the saved persistence, recent-trend, or Delta-LSTM strategy for each horizon.'}
               </p>
             </div>
           </>

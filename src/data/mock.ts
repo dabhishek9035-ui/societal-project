@@ -67,5 +67,5 @@ export function makeForecast(dam: Dam, history: LevelPoint[], asOf: string, hori
     const level = levelAt(dam, date, index);
     return { date: point.date, level };
   });
-  return { damId: dam.id, asOf, horizon, predictions, confidence, persistence, actuals: asOf < dams[0].lastRecorded.date ? actuals : undefined };
+  return { damId: dam.id, asOf, horizon, source: 'demo', predictions, confidence, persistence, actuals: asOf < dams[0].lastRecorded.date ? actuals : undefined };
 }

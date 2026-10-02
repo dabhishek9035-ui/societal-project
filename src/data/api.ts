@@ -5,7 +5,7 @@ import type { Dam, Forecast, Horizon, LevelPoint } from './types';
 
 const damSchema = z.object({ id: z.string(), name: z.string(), reservoir: z.string(), river: z.string(), location: z.string(), district: z.string(), state: z.string(), lat: z.number(), lng: z.number(), yearBuilt: z.number().optional(), purpose: z.string(), maxLevel: z.number(), minLevel: z.number(), unit: z.string(), grossStorage: z.number(), liveStorage: z.number(), currentStorage: z.number().optional(), deadStorage: z.number(), catchmentArea: z.number(), nearbyPlaces: z.array(z.string()), affectedRegions: z.array(z.string()), lastRecorded: z.object({ date: z.string(), level: z.number() }) });
 const levelSchema = z.object({ date: z.string(), level: z.number() });
-const forecastSchema = z.object({ damId: z.string(), asOf: z.string(), horizon: z.union([z.literal(1), z.literal(7), z.literal(14), z.literal(30)]), predictions: z.array(z.object({ date: z.string(), level: z.number(), lower: z.number().optional(), upper: z.number().optional() })), confidence: z.object({ 1: z.number(), 7: z.number(), 14: z.number(), 30: z.number() }), persistence: z.object({ 1: z.number(), 7: z.number(), 14: z.number(), 30: z.number() }), strategies: z.object({ 1: z.string().optional(), 7: z.string().optional(), 14: z.string().optional(), 30: z.string().optional() }).optional(), actuals: z.array(levelSchema).optional() });
+const forecastSchema = z.object({ damId: z.string(), asOf: z.string(), horizon: z.union([z.literal(1), z.literal(7), z.literal(14), z.literal(30)]), source: z.enum(['trained_model', 'historical_estimate', 'demo']).optional(), predictions: z.array(z.object({ date: z.string(), level: z.number(), lower: z.number().optional(), upper: z.number().optional() })), confidence: z.object({ 1: z.number(), 7: z.number(), 14: z.number(), 30: z.number() }), persistence: z.object({ 1: z.number(), 7: z.number(), 14: z.number(), 30: z.number() }), strategies: z.object({ 1: z.string().optional(), 7: z.string().optional(), 14: z.string().optional(), 30: z.string().optional() }).optional(), actuals: z.array(levelSchema).optional() });
 
 async function readJson<T>(url: string, schema: z.ZodType<T>, signal?: AbortSignal): Promise<T> {
   const response = await fetch(url, { signal, headers: { Accept: 'application/json' } });
@@ -75,14 +75,34 @@ export async function fetchForecast(dam: Dam, history: LevelPoint[], asOf: strin
   // A forecast is live only when its anchor is this reservoir's own latest
   // observed date. A later date from another reservoir is not a valid anchor.
   const isLatest = asOf === dam.lastRecorded.date;
-  try {
+  // The deployed checkpoint has seen later observations, so it is not a valid
+  // historical backtest model. Backdated requests use the labeled estimate path below.
+  if (isLatest) {
+    try {
       const result = await fetch(`${base}/api/predict?dam_id=${dam.id}&as_of=${asOf}&horizon=${horizon}`, { signal });
       if (result.ok) {
         const body = await result.json() as Record<string, any>;
         const predictions = (body.predictions ?? []).map((point: any) => ({ date: point.date, level: safe(point.level), lower: point.lower, upper: point.upper }));
-        if (predictions.length) return forecastSchema.parse({ damId: dam.id, asOf, horizon, predictions, confidence: normalizeScores(body.confidence), persistence: normalizeValues(body.persistence, history.at(-1)?.level ?? dam.lastRecorded.level), actuals: body.actuals });
+        const sourceStrategies = body.strategies as Record<string, unknown> | undefined;
+        if (predictions.length) return forecastSchema.parse({
+          damId: dam.id,
+          asOf,
+          horizon,
+          source: 'trained_model',
+          predictions,
+          confidence: normalizeScores(body.confidence),
+          persistence: normalizeValues(body.persistence, history.at(-1)?.level ?? dam.lastRecorded.level),
+          strategies: sourceStrategies ? {
+            1: String(sourceStrategies['1'] ?? 'persistence'),
+            7: String(sourceStrategies['7'] ?? 'persistence'),
+            14: String(sourceStrategies['14'] ?? 'persistence'),
+            30: String(sourceStrategies['30'] ?? 'persistence'),
+          } : undefined,
+          actuals: body.actuals,
+        });
       }
-  } catch { /* The current service has a separate reservoir forecast route. */ }
+    } catch { /* The current service has a separate reservoir forecast route. */ }
+  }
   let liveForecastFailure: unknown;
   if(isLatest){
     try {
@@ -94,14 +114,20 @@ export async function fetchForecast(dam: Dam, history: LevelPoint[], asOf: strin
       const anchorStorage = safe(body.current_storage_tmc, dam.currentStorage ?? 0);
       const predictions = daily.filter((p) => String(p.date) > asOf && Math.round(safe(p.day_offset)) <= horizon).map((p) => ({ date: String(p.date), level: levelFromStorage(dam, safe(p.predicted_storage_tmc), anchorLevel, anchorStorage), lower: undefined, upper: undefined }));
       const sourceStrategies = body.strategies as Record<string, unknown> | undefined;
-      if (predictions.length) return forecastSchema.parse({ damId: dam.id, asOf, horizon, predictions, confidence: normalizeScores({}), persistence: normalizeValues({}, history.at(-1)?.level ?? dam.lastRecorded.level), strategies: sourceStrategies ? { 1: String(sourceStrategies['1'] ?? 'persistence'), 7: String(sourceStrategies['7'] ?? 'persistence'), 14: String(sourceStrategies['14'] ?? 'persistence'), 30: String(sourceStrategies['30'] ?? 'persistence') } : undefined });
+      if (predictions.length) return forecastSchema.parse({ damId: dam.id, asOf, horizon, source: 'trained_model', predictions, confidence: normalizeScores({}), persistence: normalizeValues({}, history.at(-1)?.level ?? dam.lastRecorded.level), strategies: sourceStrategies ? { 1: String(sourceStrategies['1'] ?? 'persistence'), 7: String(sourceStrategies['7'] ?? 'persistence'), 14: String(sourceStrategies['14'] ?? 'persistence'), 30: String(sourceStrategies['30'] ?? 'persistence') } : undefined });
       throw new Error('The backend returned no forecast points.');
     } catch (error) { liveForecastFailure = error; }
   }
   if(isLatest)throw new Error(liveForecastFailure instanceof Error?`Live forecast unavailable: ${liveForecastFailure.message}`:'Live forecast unavailable. Check that the backend model is ready.');
   const estimate=makeForecast(dam,history,asOf,horizon);
   const actuals=await fetchActuals(dam,asOf,horizon,signal);
-  return {...estimate,actuals};
+  return {
+    ...estimate,
+    source: 'historical_estimate',
+    confidence: { 1: 0, 7: 0, 14: 0, 30: 0 },
+    predictions: estimate.predictions.map((point) => ({ ...point, lower: undefined, upper: undefined })),
+    actuals,
+  };
 }
 
 async function fetchActuals(dam:Dam,asOf:string,horizon:Horizon,signal?:AbortSignal):Promise<LevelPoint[]|undefined>{

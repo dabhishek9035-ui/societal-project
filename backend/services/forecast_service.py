@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from backend.models import (
     DAM_METADATA,
     ReservoirLSTM,
+    IndependentHorizonLSTM,
     MODELS_DIR,
     FEATURES_DIR,
     IMD_DIR,
@@ -40,7 +41,13 @@ class ForecastService:
         scaler_y = joblib.load(scaler_y_path)
 
         feat_cols = list(scaler_x.feature_names_in_)
-        model = ReservoirLSTM(input_dim=len(feat_cols), hidden_dim=64, num_layers=2, output_dim=4)
+        manifest_path = os.path.join(MODELS_DIR, f"{dam_id}_manifest.json")
+        manifest = {}
+        if os.path.exists(manifest_path):
+            with open(manifest_path, "r", encoding="utf-8") as file:
+                manifest = json.load(file)
+        model_class = IndependentHorizonLSTM if manifest.get("model_architecture") == "independent_horizon_lstm_v1" else ReservoirLSTM
+        model = model_class(input_dim=len(feat_cols)) if model_class is IndependentHorizonLSTM else ReservoirLSTM(input_dim=len(feat_cols), hidden_dim=64, num_layers=2, output_dim=4)
         model.load_state_dict(torch.load(model_path, map_location=self.device))
         model.eval()
 
@@ -98,8 +105,6 @@ class ForecastService:
         trend_shrink = 0.25
         trend_max_gap_days = 90
         if os.path.exists(manifest_path):
-            with open(manifest_path, "r", encoding="utf-8") as file:
-                manifest = json.load(file)
             strategies = manifest.get("horizon_strategy", {})
             trend_config = strategies.get("t+30", {})
             trend_shrink = float(trend_config.get("trend_shrink", trend_shrink))
@@ -120,6 +125,31 @@ class ForecastService:
                     for idx, horizon in enumerate(horizons):
                         if strategies.get(f"t+{horizon}", {}).get("selected") == "recent_trend":
                             pred_delta_raw[idx] = daily_trend * horizon * trend_shrink
+
+        # A seasonal-naive selection uses the median storage near the same
+        # target calendar date in prior years, and only observations on/before as-of.
+        date_index = pd.DatetimeIndex(df["Date"])
+        storage_series = pd.to_numeric(df["Current_Storage_TMC"], errors="coerce").to_numpy(dtype=float)
+        seasonal_config = manifest.get("seasonal_naive", {})
+        seasonal_lags = seasonal_config.get("lags_years", [1, 2, 3])
+        seasonal_tolerance = int(seasonal_config.get("tolerance_days", 14))
+        for idx, horizon in enumerate(horizons):
+            selected = strategies.get(f"t+{horizon}", {}).get("selected")
+            if selected == "persistence":
+                pred_delta_raw[idx] = 0.0
+            elif selected == "seasonal_naive":
+                target = as_of_date + timedelta(days=horizon)
+                matches = []
+                for years in seasonal_lags:
+                    anchor = target - pd.DateOffset(years=int(years))
+                    left = date_index.searchsorted(anchor - pd.Timedelta(days=seasonal_tolerance), side="left")
+                    right = date_index.searchsorted(anchor + pd.Timedelta(days=seasonal_tolerance), side="right")
+                    candidates = np.arange(left, min(right, len(df)), dtype=int)
+                    if len(candidates):
+                        best = candidates[np.argmin(np.abs((date_index[candidates] - anchor).days))]
+                        if best <= len(df) - 1 and np.isfinite(storage_series[best]):
+                            matches.append(storage_series[best])
+                pred_delta_raw[idx] = (float(np.median(matches)) if matches else current_storage) - current_storage
 
         forecast_points = []
         

@@ -1,6 +1,7 @@
 export type Horizon = 1 | 7 | 14 | 30;
 export type LevelPoint = { date: string; level: number };
 export type ForecastPoint = { date: string; level: number; lower?: number; upper?: number };
+export type ForecastSource = 'trained_model' | 'historical_estimate' | 'demo';
 export type Dam = {
   id: string;
   name: string;
@@ -29,6 +30,7 @@ export type Forecast = {
   damId: string;
   asOf: string;
   horizon: Horizon;
+  source?: ForecastSource;
   predictions: ForecastPoint[];
   confidence: Record<Horizon, number>;
   persistence: Record<Horizon, number>;

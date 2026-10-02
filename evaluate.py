@@ -26,6 +26,13 @@ def main() -> None:
 
     output_path = write_evaluation_csv(summary)
     print(f"Training run: {summary.get('run_id', 'legacy summary')}")
+    expected_dams = set(summary.get("expected_dams", []))
+    trained_dams = set(summary.get("trained_dams", [result["dam_name"] for result in results]))
+    failures = summary.get("failures", [])
+    complete = summary.get("run_status") == "complete" if "run_status" in summary else (
+        not failures and (not expected_dams or expected_dams == trained_dams)
+    )
+    print(f"Training status: {'complete' if complete else 'partial'}")
     print(summary.get("test_policy", "Metrics copied from the saved chronological holdout."))
     print(f"Published {len(results)} dams x 4 horizons to {output_path}")
     for result in results:
@@ -42,6 +49,13 @@ def main() -> None:
             skill_label = f"{skill:.1f}%" if skill is not None else "n/a"
             details.append(f"{key} {selected.get(key, {}).get('selected', '?')}, MAE skill {skill_label}")
         print(f"{result['dam_name']}: " + " | ".join(details))
+    if not complete:
+        failed_names = ", ".join(item.get("file", "unknown") for item in failures)
+        suffix = f" Failures: {failed_names}." if failed_names else ""
+        raise SystemExit(
+            f"Partial evaluation report published; only {len(trained_dams)} of "
+            f"{len(expected_dams) or len(trained_dams)} expected reservoirs are present.{suffix}"
+        )
 
 
 if __name__ == "__main__":

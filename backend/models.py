@@ -175,3 +175,17 @@ class ReservoirLSTM(nn.Module):
         lstm_out, _ = self.lstm(x)
         out = self.fc(lstm_out[:, -1, :])
         return out
+
+
+class IndependentHorizonLSTM(nn.Module):
+    """Four separately parameterized LSTMs with the legacy Nx4 output shape."""
+    def __init__(self, input_dim: int, hidden_dim: int = 64, num_layers: int = 2):
+        super().__init__()
+        self.horizons = (1, 7, 14, 30)
+        self.models = nn.ModuleDict({
+            f"h{horizon}": ReservoirLSTM(input_dim, hidden_dim, num_layers, output_dim=1)
+            for horizon in self.horizons
+        })
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return torch.cat([self.models[f"h{horizon}"](x) for horizon in self.horizons], dim=-1)
