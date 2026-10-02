@@ -1,0 +1,37 @@
+export type Horizon = 1 | 7 | 14 | 30;
+export type LevelPoint = { date: string; level: number };
+export type ForecastPoint = { date: string; level: number; lower?: number; upper?: number };
+export type Dam = {
+  id: string;
+  name: string;
+  reservoir: string;
+  river: string;
+  location: string;
+  district: string;
+  state: string;
+  lat: number;
+  lng: number;
+  yearBuilt?: number;
+  purpose: string;
+  maxLevel: number;
+  minLevel: number;
+  unit: string;
+  grossStorage: number;
+  liveStorage: number;
+  currentStorage?: number;
+  deadStorage: number;
+  catchmentArea: number;
+  nearbyPlaces: string[];
+  affectedRegions: string[];
+  lastRecorded: LevelPoint;
+};
+export type Forecast = {
+  damId: string;
+  asOf: string;
+  horizon: Horizon;
+  predictions: ForecastPoint[];
+  confidence: Record<Horizon, number>;
+  persistence: Record<Horizon, number>;
+  strategies?: Partial<Record<Horizon, string>>;
+  actuals?: LevelPoint[];
+};

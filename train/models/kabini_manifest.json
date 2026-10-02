@@ -1,0 +1,372 @@
+{
+  "dam_name": "kabini",
+  "rows_labeled": 9597,
+  "feature_count": 37,
+  "sequence_length": 14,
+  "best_epoch": 1,
+  "test_origins": 1440,
+  "validation_start": "2015-02-09",
+  "validation_end": "2022-03-14",
+  "validation_coverage_days": 2591,
+  "test_start": "2022-04-14",
+  "test_end": "2026-09-02",
+  "test_coverage_days": 1603,
+  "horizon_strategy": {
+    "t+1": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 0.09623,
+      "validation_persistence_mae_tmc": 0.09294,
+      "validation_recent_trend_mae_tmc": 0.09033,
+      "validation_mae_skill_pct": -3.542,
+      "validation_recent_trend_skill_pct": 2.813,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 2591,
+      "validation_blocks": [
+        {
+          "start": "2015-02-09",
+          "end": "2018-05-07",
+          "coverage_days": 1184
+        },
+        {
+          "start": "2018-05-08",
+          "end": "2022-03-14",
+          "coverage_days": 1407
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 0.06945,
+          "persistence_mae_tmc": 0.06986,
+          "mae_skill_pct": 0.584,
+          "recent_trend_mae_tmc": 0.06761,
+          "recent_trend_skill_pct": 3.216
+        },
+        {
+          "model_mae_tmc": 0.12299,
+          "persistence_mae_tmc": 0.116,
+          "mae_skill_pct": -6.024,
+          "recent_trend_mae_tmc": 0.11302,
+          "recent_trend_skill_pct": 2.571
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": false,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    },
+    "t+7": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 0.48687,
+      "validation_persistence_mae_tmc": 0.49767,
+      "validation_recent_trend_mae_tmc": 0.48232,
+      "validation_mae_skill_pct": 2.169,
+      "validation_recent_trend_skill_pct": 3.084,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 2591,
+      "validation_blocks": [
+        {
+          "start": "2015-02-09",
+          "end": "2018-05-07",
+          "coverage_days": 1184
+        },
+        {
+          "start": "2018-05-08",
+          "end": "2022-03-14",
+          "coverage_days": 1407
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 0.38559,
+          "persistence_mae_tmc": 0.40196,
+          "mae_skill_pct": 4.073,
+          "recent_trend_mae_tmc": 0.3887,
+          "recent_trend_skill_pct": 3.298
+        },
+        {
+          "model_mae_tmc": 0.58808,
+          "persistence_mae_tmc": 0.5933,
+          "mae_skill_pct": 0.88,
+          "recent_trend_mae_tmc": 0.57586,
+          "recent_trend_skill_pct": 2.94
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": false,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    },
+    "t+14": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 0.8779,
+      "validation_persistence_mae_tmc": 0.87465,
+      "validation_recent_trend_mae_tmc": 0.84448,
+      "validation_mae_skill_pct": -0.372,
+      "validation_recent_trend_skill_pct": 3.45,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 2591,
+      "validation_blocks": [
+        {
+          "start": "2015-02-09",
+          "end": "2018-05-07",
+          "coverage_days": 1184
+        },
+        {
+          "start": "2018-05-08",
+          "end": "2022-03-14",
+          "coverage_days": 1407
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 0.69278,
+          "persistence_mae_tmc": 0.70781,
+          "mae_skill_pct": 2.123,
+          "recent_trend_mae_tmc": 0.67866,
+          "recent_trend_skill_pct": 4.118
+        },
+        {
+          "model_mae_tmc": 1.06286,
+          "persistence_mae_tmc": 1.04135,
+          "mae_skill_pct": -2.066,
+          "recent_trend_mae_tmc": 1.01015,
+          "recent_trend_skill_pct": 2.996
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": false,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    },
+    "t+30": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 1.54864,
+      "validation_persistence_mae_tmc": 1.56569,
+      "validation_recent_trend_mae_tmc": 1.511,
+      "validation_mae_skill_pct": 1.089,
+      "validation_recent_trend_skill_pct": 3.493,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 2591,
+      "validation_blocks": [
+        {
+          "start": "2015-02-09",
+          "end": "2018-05-07",
+          "coverage_days": 1184
+        },
+        {
+          "start": "2018-05-08",
+          "end": "2022-03-14",
+          "coverage_days": 1407
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 1.24347,
+          "persistence_mae_tmc": 1.28985,
+          "mae_skill_pct": 3.596,
+          "recent_trend_mae_tmc": 1.21128,
+          "recent_trend_skill_pct": 6.092
+        },
+        {
+          "model_mae_tmc": 1.85356,
+          "persistence_mae_tmc": 1.84131,
+          "mae_skill_pct": -0.666,
+          "recent_trend_mae_tmc": 1.81048,
+          "recent_trend_skill_pct": 1.674
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": false,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    }
+  },
+  "test_storage_metrics": {
+    "t+1": {
+      "r2": 0.93591,
+      "mae_tmc": 0.18274,
+      "rmse_tmc": 0.88222
+    },
+    "t+7": {
+      "r2": 0.81875,
+      "mae_tmc": 0.68046,
+      "rmse_tmc": 1.48191
+    },
+    "t+14": {
+      "r2": 0.65434,
+      "mae_tmc": 1.10882,
+      "rmse_tmc": 2.05237
+    },
+    "t+30": {
+      "r2": 0.25637,
+      "mae_tmc": 1.83766,
+      "rmse_tmc": 3.04359
+    }
+  },
+  "persistence_baseline": {
+    "t+1": {
+      "r2": 0.93632,
+      "mae_tmc": 0.18459,
+      "rmse_tmc": 0.87937
+    },
+    "t+7": {
+      "r2": 0.82339,
+      "mae_tmc": 0.67938,
+      "rmse_tmc": 1.46281
+    },
+    "t+14": {
+      "r2": 0.66973,
+      "mae_tmc": 1.0924,
+      "rmse_tmc": 2.00616
+    },
+    "t+30": {
+      "r2": 0.31807,
+      "mae_tmc": 1.75618,
+      "rmse_tmc": 2.91459
+    }
+  },
+  "test_skill_vs_persistence": {
+    "t+1": {
+      "model_mae_tmc": 0.18274,
+      "persistence_mae_tmc": 0.18459,
+      "mae_skill_pct": 1.001,
+      "model_rmse_tmc": 0.88222,
+      "persistence_rmse_tmc": 0.87937,
+      "rmse_skill_pct": -0.324
+    },
+    "t+7": {
+      "model_mae_tmc": 0.68046,
+      "persistence_mae_tmc": 0.67938,
+      "mae_skill_pct": -0.159,
+      "model_rmse_tmc": 1.48191,
+      "persistence_rmse_tmc": 1.46281,
+      "rmse_skill_pct": -1.306
+    },
+    "t+14": {
+      "model_mae_tmc": 1.10882,
+      "persistence_mae_tmc": 1.0924,
+      "mae_skill_pct": -1.503,
+      "model_rmse_tmc": 2.05237,
+      "persistence_rmse_tmc": 2.00616,
+      "rmse_skill_pct": -2.304
+    },
+    "t+30": {
+      "model_mae_tmc": 1.83766,
+      "persistence_mae_tmc": 1.75618,
+      "mae_skill_pct": -4.64,
+      "model_rmse_tmc": 3.04359,
+      "persistence_rmse_tmc": 2.91459,
+      "rmse_skill_pct": -4.426
+    }
+  },
+  "feature_columns": [
+    "Percentage Full",
+    "Reservoir Level (ft)",
+    "Design Gross Capacity (TMC)",
+    "Gross Capacity (TMC)",
+    "Live Capacity (TMC)",
+    "Live Above Cill (TMC)",
+    "Inflow (Cusecs)",
+    "Outflow to River (Cusecs)",
+    "Canal Withdrawal (Cusecs)",
+    "Evaporation (Cusecs)",
+    "Cumulative Inflow (TMC)",
+    "Cumulative Outflow (TMC)",
+    "Cumulative Withdrawal (TMC)",
+    "Cumulative Evaporation (TMC)",
+    "RAINFALL",
+    "Current_Storage_TMC",
+    "sin_doy",
+    "cos_doy",
+    "is_monsoon",
+    "storage_lag_1",
+    "inflow_lag_1",
+    "outflow_lag_1",
+    "storage_lag_2",
+    "inflow_lag_2",
+    "outflow_lag_2",
+    "storage_lag_7",
+    "inflow_lag_7",
+    "outflow_lag_7",
+    "storage_lag_14",
+    "inflow_lag_14",
+    "outflow_lag_14",
+    "storage_lag_30",
+    "inflow_lag_30",
+    "outflow_lag_30",
+    "inflow_roll_mean_3d",
+    "inflow_roll_mean_7d",
+    "inflow_roll_mean_14d"
+  ],
+  "horizons_days": [
+    1,
+    7,
+    14,
+    30
+  ],
+  "missing_feature_fill_values": {
+    "Percentage Full": 0.0,
+    "Reservoir Level (ft)": 2274.87,
+    "Design Gross Capacity (TMC)": 19.516,
+    "Gross Capacity (TMC)": 14.2075,
+    "Live Capacity (TMC)": 4.426,
+    "Live Above Cill (TMC)": 10.364,
+    "Inflow (Cusecs)": 925.0,
+    "Outflow to River (Cusecs)": 550.0,
+    "Canal Withdrawal (Cusecs)": 600.0,
+    "Evaporation (Cusecs)": 96.065,
+    "Cumulative Inflow (TMC)": 82.068,
+    "Cumulative Outflow (TMC)": 57.921,
+    "Cumulative Withdrawal (TMC)": 20.322,
+    "Cumulative Evaporation (TMC)": 1.545,
+    "RAINFALL": 0.0,
+    "Current_Storage_TMC": 4.426,
+    "sin_doy": -0.0236511272452315,
+    "cos_doy": 0.0010751512827982,
+    "is_monsoon": 0.0,
+    "storage_lag_1": 4.420999999999999,
+    "inflow_lag_1": 925.0,
+    "outflow_lag_1": 550.0,
+    "storage_lag_2": 4.42,
+    "inflow_lag_2": 925.0,
+    "outflow_lag_2": 550.0,
+    "storage_lag_7": 4.415,
+    "inflow_lag_7": 925.0,
+    "outflow_lag_7": 550.0,
+    "storage_lag_14": 4.41,
+    "inflow_lag_14": 925.0,
+    "outflow_lag_14": 550.0,
+    "storage_lag_30": 4.36,
+    "inflow_lag_30": 925.0,
+    "outflow_lag_30": 550.0,
+    "inflow_roll_mean_3d": 934.1666666666667,
+    "inflow_roll_mean_7d": 959.6428571428571,
+    "inflow_roll_mean_14d": 1061.3571428571431
+  },
+  "capacity_tmc": 19.516,
+  "model_file": "kabini_lstm.pth"
+}

@@ -1,0 +1,72 @@
+﻿JALADRISHTI TRAINING RUN
+Run ID: 
+2026-10-02T09:10:41+00:00
+Successful dams: 
+10
+Failed dams: 
+0
+Selection: 
+validation MAE; at least 5% pooled skill and at least 5% skill in each of two 365-day blocks are required to promote a model head
+Test use: 
+final chronological holdout; used for reporting only, never model selection
+
+almatti | validation 1333d | holdout 815d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 0.94126 TMC vs persistence 0.94126 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 5.42213 TMC vs persistence 5.42213 TMC
+  t+14 persistence | MAE skill vs persistence: 0.0% | model 9.73303 TMC vs persistence 9.73303 TMC
+  t+30 persistence | MAE skill vs persistence: 0.0% | model 18.36853 TMC vs persistence 18.36853 TMC
+
+bhadra | validation 1473d | holdout 959d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 0.37105 TMC vs persistence 0.37105 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 2.00655 TMC vs persistence 2.00655 TMC
+  t+14 persistence | MAE skill vs persistence: 0.0% | model 3.8731 TMC vs persistence 3.8731 TMC
+  t+30 persistence | MAE skill vs persistence: 0.0% | model 8.06045 TMC vs persistence 8.06045 TMC
+
+hemavathy | validation 2458d | holdout 1494d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 0.15626 TMC vs persistence 0.15626 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 0.94511 TMC vs persistence 0.94511 TMC
+  t+14 persistence | MAE skill vs persistence: 0.0% | model 1.77662 TMC vs persistence 1.77662 TMC
+  t+30 persistence | MAE skill vs persistence: 0.0% | model 3.4213 TMC vs persistence 3.4213 TMC
+
+kabini | validation 2636d | holdout 1636d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 0.18405 TMC vs persistence 0.18405 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 0.66936 TMC vs persistence 0.66936 TMC
+  t+14 persistence | MAE skill vs persistence: 0.0% | model 1.06507 TMC vs persistence 1.06507 TMC
+  t+30 persistence | MAE skill vs persistence: 0.0% | model 1.72615 TMC vs persistence 1.72615 TMC
+
+krsagara | validation 1317d | holdout 808d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 0.92649 TMC vs persistence 0.92649 TMC
+  t+7 model | MAE skill vs persistence: 20.762% | model 3.43734 TMC vs persistence 4.33799 TMC
+  t+14 model | MAE skill vs persistence: 29.47% | model 5.68084 TMC vs persistence 8.05446 TMC
+  t+30 model | MAE skill vs persistence: 36.996% | model 9.89892 TMC vs persistence 15.71154 TMC
+
+linganamakki | validation 147d | holdout 130d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 1.2418 TMC vs persistence 1.2418 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 8.27196 TMC vs persistence 8.27196 TMC
+  t+14 persistence | MAE skill vs persistence: 0.0% | model 15.87434 TMC vs persistence 15.87434 TMC
+  t+30 persistence | MAE skill vs persistence: 0.0% | model 32.98074 TMC vs persistence 32.98074 TMC
+
+malaprabha | validation 1273d | holdout 736d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 0.15144 TMC vs persistence 0.15144 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 0.99318 TMC vs persistence 0.99318 TMC
+  t+14 persistence | MAE skill vs persistence: 0.0% | model 1.96948 TMC vs persistence 1.96948 TMC
+  t+30 persistence | MAE skill vs persistence: 0.0% | model 4.09979 TMC vs persistence 4.09979 TMC
+
+supa | validation 147d | holdout 130d
+  t+1 persistence | MAE skill vs persistence: 0.0% | model 0.79666 TMC vs persistence 0.79666 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 5.67253 TMC vs persistence 5.67253 TMC
+  t+14 persistence | MAE skill vs persistence: 0.0% | model 11.3914 TMC vs persistence 11.3914 TMC
+  t+30 persistence | MAE skill vs persistence: 0.0% | model 24.40244 TMC vs persistence 24.40244 TMC
+
+tungabhadra | validation 1507d | holdout 979d
+  t+1 model | MAE skill vs persistence: 10.025% | model 0.32712 TMC vs persistence 0.36357 TMC
+  t+7 persistence | MAE skill vs persistence: 0.0% | model 1.96513 TMC vs persistence 1.96513 TMC
+  t+14 model | MAE skill vs persistence: 14.663% | model 3.23652 TMC vs persistence 3.79263 TMC
+  t+30 model | MAE skill vs persistence: 10.373% | model 7.07017 TMC vs persistence 7.88847 TMC
+
+vanivilasa_sagar | validation 429d | holdout 291d
+  t+1 persistence | MAE skill vs persistence: 0.652% | model 0.08287 TMC vs persistence 0.08341 TMC
+  t+7 persistence | MAE skill vs persistence: 0.154% | model 0.35243 TMC vs persistence 0.35297 TMC
+  t+14 persistence | MAE skill vs persistence: 0.098% | model 0.55352 TMC vs persistence 0.55407 TMC
+  t+30 persistence | MAE skill vs persistence: 0.054% | model 1.00669 TMC vs persistence 1.00723 TMC
+

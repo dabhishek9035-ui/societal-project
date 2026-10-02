@@ -1,125 +1,124 @@
-import argparse
 import os
+import glob
 import joblib
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from datetime import timedelta
 
-DAM_THRESHOLDS = {
-    "almatti": {"full": 1705.0, "warning": 1700.0, "min": 1660.0},
-    "bhadra": {"full": 2158.0, "warning": 2150.0, "min": 2100.0},
-    "hemavathy": {"full": 2922.0, "warning": 2915.0, "min": 2850.0},
-    "kabini": {"full": 2284.0, "warning": 2280.0, "min": 2240.0},
-    "krsagara": {"full": 124.8, "warning": 120.0, "min": 80.0},
-    "linganamakki": {"full": 1819.0, "warning": 1812.0, "min": 1750.0},
-    "malaprabha": {"full": 2079.5, "warning": 2072.0, "min": 2020.0},
-    "supa": {"full": 1850.0, "warning": 1840.0, "min": 1770.0},
-    "tungabhadra": {"full": 1633.0, "warning": 1628.0, "min": 1580.0},
-    "vanivilasa_sagar": {"full": 130.0, "warning": 125.0, "min": 80.0},
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODELS_DIR = os.path.join(BASE_DIR, "train", "models")
+FEATURES_DIR = os.path.join(BASE_DIR, "data", "features")
+
+DAM_CAPACITIES = {
+    "almatti": 123.08,
+    "bhadra": 71.50,
+    "hemavathy": 37.10,
+    "kabini": 19.50,
+    "krsagara": 105.79,
+    "linganamakki": 156.61,
+    "malaprabha": 37.73,
+    "supa": 147.53,
+    "tungabhadra": 100.80,
+    "vanivilasa_sagar": 30.40
 }
 
-PRED_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = os.path.dirname(PRED_DIR)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-class SingleStepLSTM(nn.Module):
-    def __init__(self, input_dim, hidden_dim=32, num_layers=2, dropout=0.2):
-        super().__init__()
-        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout if num_layers > 1 else 0.0)
-        self.fc = nn.Sequential(nn.Dropout(dropout), nn.Linear(hidden_dim, 1))
-
-    def forward(self, x):
-        out, _ = self.lstm(x)
-        return self.fc(out[:, -1, :]).squeeze(-1)
-
-class MultiStepLSTM(nn.Module):
-    def __init__(self, input_dim, hidden_dim=32, num_layers=2, dropout=0.2, horizon=7):
-        super().__init__()
-        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout if num_layers > 1 else 0.0)
-        self.fc = nn.Sequential(nn.Dropout(dropout), nn.Linear(hidden_dim, horizon))
+# 1. Model Architecture Matching Trained Checkpoints
+class ReservoirLSTM(nn.Module):
+    def __init__(self, input_dim, hidden_dim=64, num_layers=2, output_dim=4):
+        super(ReservoirLSTM, self).__init__()
+        self.lstm = nn.LSTM(
+            input_size=input_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=0.2 if num_layers > 1 else 0.0
+        )
+        self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        out, _ = self.lstm(x)
-        return self.fc(out[:, -1, :])
+        lstm_out, _ = self.lstm(x)
+        out = self.fc(lstm_out[:, -1, :])
+        return out
 
-def predict_for_dam(dam_name="krsagara"):
-    dam_name = dam_name.lower().replace(" ", "_")
-    
-    feat_path = os.path.join(BASE_DIR, "data", "features", f"{dam_name}_features.csv")
-    scaler_path = os.path.join(BASE_DIR, "data", "splits", dam_name, "scaler.joblib")
-    single_model_path = os.path.join(BASE_DIR, "train", "models", f"{dam_name}_lstm_best.pth")
-    multi_model_path = os.path.join(BASE_DIR, "train", "models", f"{dam_name}_multistep_lstm.pth")
+# 2. Prediction Pipeline Function
+def predict_reservoir_storage(dam_name: str, sequence_length: int = 14):
+    """
+    Loads latest sequence data, scales features, runs inference on the trained
+    PyTorch Delta-LSTM model, and returns predicted storage for t+1, t+7, t+14, and t+30 days.
+    """
+    model_path = os.path.join(MODELS_DIR, f"{dam_name}_lstm.pth")
+    scaler_x_path = os.path.join(MODELS_DIR, f"{dam_name}_scaler_x.pkl")
+    scaler_y_path = os.path.join(MODELS_DIR, f"{dam_name}_scaler_y.pkl")
+    feature_path = os.path.join(FEATURES_DIR, f"{dam_name}_features.csv")
 
-    if not os.path.exists(feat_path):
-        raise FileNotFoundError(f"Feature dataset not found for '{dam_name}' at {feat_path}")
+    for p in [model_path, scaler_x_path, scaler_y_path, feature_path]:
+        if not os.path.exists(p):
+            raise FileNotFoundError(f"Required file not found: {p}")
 
-    thresholds = DAM_THRESHOLDS.get(dam_name, {"full": 100.0, "warning": 90.0, "min": 20.0})
+    scaler_x = joblib.load(scaler_x_path)
+    scaler_y = joblib.load(scaler_y_path)
+    df = pd.read_csv(feature_path)
+    df['Date'] = pd.to_datetime(df['Date'])
+    df = df.sort_values('Date').reset_index(drop=True)
 
-    df = pd.read_csv(feat_path)
-    df["Date"] = pd.to_datetime(df["Date"])
-    df = df.sort_values("Date").reset_index(drop=True)
+    if hasattr(scaler_x, 'feature_names_in_'):
+        feature_cols = list(scaler_x.feature_names_in_)
+    else:
+        target_cols = [c for c in df.columns if c.startswith('target_')]
+        ignore_cols = ['Date', 'Reservoir Name', 'Basin', 'Monitoring Date', 'River', 'Sub Basin', '_id'] + target_cols
+        feature_cols = [c for c in df.columns if c not in ignore_cols and np.issubdtype(df[c].dtype, np.number)]
 
-    feature_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    if len(df) < sequence_length:
+        raise ValueError(f"Insufficient historical rows ({len(df)}) for sequence length {sequence_length}.")
 
-    scaler = joblib.load(scaler_path)
+    latest_df = df.iloc[-sequence_length:].copy()
+    latest_date = latest_df['Date'].iloc[-1]
+    current_storage = float(latest_df['Current_Storage_TMC'].iloc[-1])
+    max_cap = DAM_CAPACITIES.get(dam_name, 120.0)
 
-    SEQ_LEN = min(60, max(5, len(df) - 1))
-    latest_window = df.tail(SEQ_LEN).copy()
-    last_date = latest_window["Date"].iloc[-1]
-    current_level = latest_window["Reservoir Level (ft)"].iloc[-1]
+    # Scale Features
+    X_scaled = scaler_x.transform(latest_df[feature_cols])
+    X_tensor = torch.tensor(X_scaled, dtype=torch.float32).unsqueeze(0)
 
-    scaled_data = scaler.transform(latest_window[feature_cols])
-    x_tensor = torch.tensor(scaled_data, dtype=torch.float32).unsqueeze(0).to(device)
-
-    single_model = SingleStepLSTM(len(feature_cols)).to(device)
-    single_model.load_state_dict(torch.load(single_model_path, map_location=device))
-    single_model.eval()
-
-    multi_model = MultiStepLSTM(len(feature_cols), horizon=7).to(device)
-    multi_model.load_state_dict(torch.load(multi_model_path, map_location=device))
-    multi_model.eval()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = ReservoirLSTM(input_dim=len(feature_cols), output_dim=4).to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.eval()
 
     with torch.no_grad():
-        delta_1day = single_model(x_tensor).cpu().numpy().item()
-        deltas_7day = multi_model(x_tensor).cpu().numpy().flatten()
+        X_tensor = X_tensor.to(device)
+        delta_scaled = model(X_tensor).cpu().numpy()
 
-    # Model directly predicts deltas in feet
-    pred_level_1day = current_level + delta_1day
-    preds_levels_7day = current_level + deltas_7day
+    delta_raw = scaler_y.inverse_transform(delta_scaled)[0]
 
-    max_7day = np.max(preds_levels_7day)
-    min_7day = np.min(preds_levels_7day)
+    forecast_horizons = [1, 7, 14, 30]
+    forecasts = []
+    for h, val in zip(forecast_horizons, delta_raw):
+        forecast_date = latest_date + timedelta(days=h)
+        pred_storage = float(np.clip(current_storage + val, 0.0, max_cap))
+        forecasts.append({
+            "horizon_days": h,
+            "target_date": forecast_date.strftime("%Y-%m-%d"),
+            "predicted_delta_tmc": round(float(val), 4),
+            "predicted_storage_tmc": round(pred_storage, 4),
+            "percentage_full": round((pred_storage / max_cap * 100.0), 1)
+        })
 
-    if max_7day >= thresholds["full"] or pred_level_1day >= thresholds["full"]:
-        risk_status = "CRITICAL: OVERFLOW RISK"
-        alert_color = "RED"
-    elif max_7day >= thresholds["warning"] or pred_level_1day >= thresholds["warning"]:
-        risk_status = "WARNING: HIGH RESERVOIR LEVEL"
-        alert_color = "YELLOW"
-    elif min_7day <= thresholds["min"]:
-        risk_status = "ALERT: LOW STORAGE LEVEL"
-        alert_color = "ORANGE"
-    else:
-        risk_status = "NORMAL OPERATIONAL STATUS"
-        alert_color = "GREEN"
-
-    print("=" * 65)
-    print(f"       {dam_name.upper()} DAM WATER LEVEL FORECAST & RISK MONITOR")
-    print("=" * 65)
-    print(f" As of Historical Date : {last_date.strftime('%Y-%m-%d')}")
-    print(f" Current Reservoir Level: {current_level:.2f} ft")
-    print(f" Full Reservoir Capacity: {thresholds['full']:.2f} ft")
-    print("-" * 65)
-    print(f" Day +1 Forecast       : {pred_level_1day:.2f} ft ({delta_1day:+.2f} ft)")
-    print(f" Peak 7-Day Level      : {max_7day:.2f} ft")
-    print(f" 7-Day Net Delta       : {deltas_7day[-1]:+.2f} ft")
-    print("-" * 65)
-    print(f" RISK STATUS: [{alert_color}] {risk_status}")
-    print("=" * 65)
+    return {
+        "dam_name": dam_name,
+        "as_of_date": latest_date.strftime("%Y-%m-%d"),
+        "latest_observed_storage_tmc": round(current_storage, 4),
+        "gross_capacity_tmc": max_cap,
+        "forecasts": forecasts
+    }
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dam", type=str, default="krsagara", help="Dam identifier name")
-    args = parser.parse_args()
-    predict_for_dam(args.dam)   
+    test_dams = [f.replace("_lstm.pth", "") for f in os.listdir(MODELS_DIR) if f.endswith("_lstm.pth")]
+    if test_dams:
+        dam = "almatti"
+        print(f"Running test prediction for: {dam}")
+        result = predict_reservoir_storage(dam)
+        import json
+        print(json.dumps(result, indent=2))

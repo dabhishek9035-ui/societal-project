@@ -1,0 +1,2582 @@
+{
+  "run_id": "2026-10-02T11:08:46+00:00",
+  "selection_metric": "validation MAE; choose the LSTM only with >=5% pooled and per-block skill in both 365-day blocks, or choose a discounted 30-day trend only with >=0.5% pooled and per-block skill in both 60-day blocks; otherwise use persistence",
+  "test_policy": "final chronological holdout; used for reporting only, never model selection",
+  "results": [
+    {
+      "dam_name": "almatti",
+      "rows_labeled": 5971,
+      "feature_count": 37,
+      "sequence_length": 14,
+      "best_epoch": 1,
+      "test_origins": 896,
+      "validation_start": "2020-02-12",
+      "validation_end": "2024-02-15",
+      "validation_coverage_days": 1465,
+      "test_start": "2024-03-17",
+      "test_end": "2026-09-01",
+      "test_coverage_days": 899,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.99702,
+          "validation_persistence_mae_tmc": 0.98965,
+          "validation_recent_trend_mae_tmc": 0.9432,
+          "validation_mae_skill_pct": -0.745,
+          "validation_recent_trend_skill_pct": 4.693,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1465,
+          "validation_blocks": [
+            {
+              "start": "2020-02-12",
+              "end": "2022-02-11",
+              "coverage_days": 731
+            },
+            {
+              "start": "2022-02-12",
+              "end": "2024-02-15",
+              "coverage_days": 734
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 1.19371,
+              "persistence_mae_tmc": 1.21327,
+              "mae_skill_pct": 1.612,
+              "recent_trend_mae_tmc": 1.17874,
+              "recent_trend_skill_pct": 2.846
+            },
+            {
+              "model_mae_tmc": 0.80059,
+              "persistence_mae_tmc": 0.76633,
+              "mae_skill_pct": -4.471,
+              "recent_trend_mae_tmc": 0.70799,
+              "recent_trend_skill_pct": 7.612
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 4.34134,
+          "validation_persistence_mae_tmc": 4.69155,
+          "validation_recent_trend_mae_tmc": 4.35552,
+          "validation_mae_skill_pct": 7.465,
+          "validation_recent_trend_skill_pct": 7.163,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1465,
+          "validation_blocks": [
+            {
+              "start": "2020-02-12",
+              "end": "2022-02-11",
+              "coverage_days": 731
+            },
+            {
+              "start": "2022-02-12",
+              "end": "2024-02-15",
+              "coverage_days": 734
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 4.26422,
+              "persistence_mae_tmc": 4.91289,
+              "mae_skill_pct": 13.203,
+              "recent_trend_mae_tmc": 4.68022,
+              "recent_trend_skill_pct": 4.736
+            },
+            {
+              "model_mae_tmc": 4.41836,
+              "persistence_mae_tmc": 4.47051,
+              "mae_skill_pct": 1.167,
+              "recent_trend_mae_tmc": 4.03126,
+              "recent_trend_skill_pct": 9.826
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 7.16448,
+          "validation_persistence_mae_tmc": 8.34472,
+          "validation_recent_trend_mae_tmc": 7.65839,
+          "validation_mae_skill_pct": 14.144,
+          "validation_recent_trend_skill_pct": 8.225,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1465,
+          "validation_blocks": [
+            {
+              "start": "2020-02-12",
+              "end": "2022-02-11",
+              "coverage_days": 731
+            },
+            {
+              "start": "2022-02-12",
+              "end": "2024-02-15",
+              "coverage_days": 734
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 6.45747,
+              "persistence_mae_tmc": 8.44318,
+              "mae_skill_pct": 23.519,
+              "recent_trend_mae_tmc": 7.97551,
+              "recent_trend_skill_pct": 5.539
+            },
+            {
+              "model_mae_tmc": 7.87052,
+              "persistence_mae_tmc": 8.2464,
+              "mae_skill_pct": 4.558,
+              "recent_trend_mae_tmc": 7.3417,
+              "recent_trend_skill_pct": 10.971
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 15.27928,
+          "validation_persistence_mae_tmc": 16.41776,
+          "validation_recent_trend_mae_tmc": 14.59566,
+          "validation_mae_skill_pct": 6.934,
+          "validation_recent_trend_skill_pct": 11.098,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1465,
+          "validation_blocks": [
+            {
+              "start": "2020-02-12",
+              "end": "2022-02-11",
+              "coverage_days": 731
+            },
+            {
+              "start": "2022-02-12",
+              "end": "2024-02-15",
+              "coverage_days": 734
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 12.68517,
+              "persistence_mae_tmc": 16.39477,
+              "mae_skill_pct": 22.627,
+              "recent_trend_mae_tmc": 14.916,
+              "recent_trend_skill_pct": 9.02
+            },
+            {
+              "model_mae_tmc": 17.86984,
+              "persistence_mae_tmc": 16.44073,
+              "mae_skill_pct": -8.693,
+              "recent_trend_mae_tmc": 14.27575,
+              "recent_trend_skill_pct": 13.168
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.9972,
+          "mae_tmc": 0.83298,
+          "rmse_tmc": 2.05312
+        },
+        "t+7": {
+          "r2": 0.94452,
+          "mae_tmc": 4.55652,
+          "rmse_tmc": 9.16026
+        },
+        "t+14": {
+          "r2": 0.86266,
+          "mae_tmc": 8.05352,
+          "rmse_tmc": 14.43602
+        },
+        "t+30": {
+          "r2": 0.65598,
+          "mae_tmc": 14.87409,
+          "rmse_tmc": 22.74845
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.99708,
+          "mae_tmc": 0.90055,
+          "rmse_tmc": 2.09675
+        },
+        "t+7": {
+          "r2": 0.94005,
+          "mae_tmc": 5.12342,
+          "rmse_tmc": 9.52253
+        },
+        "t+14": {
+          "r2": 0.84689,
+          "mae_tmc": 9.16337,
+          "rmse_tmc": 15.24198
+        },
+        "t+30": {
+          "r2": 0.59045,
+          "mae_tmc": 17.40457,
+          "rmse_tmc": 24.8205
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.83298,
+          "persistence_mae_tmc": 0.90055,
+          "mae_skill_pct": 7.503,
+          "model_rmse_tmc": 2.05312,
+          "persistence_rmse_tmc": 2.09675,
+          "rmse_skill_pct": 2.08
+        },
+        "t+7": {
+          "model_mae_tmc": 4.55652,
+          "persistence_mae_tmc": 5.12342,
+          "mae_skill_pct": 11.065,
+          "model_rmse_tmc": 9.16026,
+          "persistence_rmse_tmc": 9.52253,
+          "rmse_skill_pct": 3.804
+        },
+        "t+14": {
+          "model_mae_tmc": 8.05352,
+          "persistence_mae_tmc": 9.16337,
+          "mae_skill_pct": 12.112,
+          "model_rmse_tmc": 14.43602,
+          "persistence_rmse_tmc": 15.24198,
+          "rmse_skill_pct": 5.288
+        },
+        "t+30": {
+          "model_mae_tmc": 14.87409,
+          "persistence_mae_tmc": 17.40457,
+          "mae_skill_pct": 14.539,
+          "model_rmse_tmc": 22.74845,
+          "persistence_rmse_tmc": 24.8205,
+          "rmse_skill_pct": 8.348
+        }
+      }
+    },
+    {
+      "dam_name": "bhadra",
+      "rows_labeled": 6428,
+      "feature_count": 37,
+      "sequence_length": 14,
+      "best_epoch": 1,
+      "test_origins": 965,
+      "validation_start": "2019-07-05",
+      "validation_end": "2023-11-01",
+      "validation_coverage_days": 1581,
+      "test_start": "2023-12-02",
+      "test_end": "2026-09-01",
+      "test_coverage_days": 1005,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.2816,
+          "validation_persistence_mae_tmc": 0.29684,
+          "validation_recent_trend_mae_tmc": 0.26777,
+          "validation_mae_skill_pct": 5.133,
+          "validation_recent_trend_skill_pct": 9.792,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1581,
+          "validation_blocks": [
+            {
+              "start": "2019-07-05",
+              "end": "2021-09-02",
+              "coverage_days": 791
+            },
+            {
+              "start": "2021-09-03",
+              "end": "2023-11-01",
+              "coverage_days": 790
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.25905,
+              "persistence_mae_tmc": 0.34612,
+              "mae_skill_pct": 25.156,
+              "recent_trend_mae_tmc": 0.31071,
+              "recent_trend_skill_pct": 10.23
+            },
+            {
+              "model_mae_tmc": 0.30413,
+              "persistence_mae_tmc": 0.24762,
+              "mae_skill_pct": -22.819,
+              "recent_trend_mae_tmc": 0.22488,
+              "recent_trend_skill_pct": 9.182
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 1.52944,
+          "validation_persistence_mae_tmc": 1.85403,
+          "validation_recent_trend_mae_tmc": 1.66739,
+          "validation_mae_skill_pct": 17.507,
+          "validation_recent_trend_skill_pct": 10.067,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1581,
+          "validation_blocks": [
+            {
+              "start": "2019-07-05",
+              "end": "2021-09-02",
+              "coverage_days": 791
+            },
+            {
+              "start": "2021-09-03",
+              "end": "2023-11-01",
+              "coverage_days": 790
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 1.43094,
+              "persistence_mae_tmc": 2.1826,
+              "mae_skill_pct": 34.439,
+              "recent_trend_mae_tmc": 1.93433,
+              "recent_trend_skill_pct": 11.375
+            },
+            {
+              "model_mae_tmc": 1.62781,
+              "persistence_mae_tmc": 1.52587,
+              "mae_skill_pct": -6.68,
+              "recent_trend_mae_tmc": 1.40079,
+              "recent_trend_skill_pct": 8.197
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 2.86246,
+          "validation_persistence_mae_tmc": 3.60906,
+          "validation_recent_trend_mae_tmc": 3.26405,
+          "validation_mae_skill_pct": 20.687,
+          "validation_recent_trend_skill_pct": 9.56,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1581,
+          "validation_blocks": [
+            {
+              "start": "2019-07-05",
+              "end": "2021-09-02",
+              "coverage_days": 791
+            },
+            {
+              "start": "2021-09-03",
+              "end": "2023-11-01",
+              "coverage_days": 790
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 2.61475,
+              "persistence_mae_tmc": 4.26836,
+              "mae_skill_pct": 38.741,
+              "recent_trend_mae_tmc": 3.79367,
+              "recent_trend_skill_pct": 11.121
+            },
+            {
+              "model_mae_tmc": 3.10985,
+              "persistence_mae_tmc": 2.9506,
+              "mae_skill_pct": -5.397,
+              "recent_trend_mae_tmc": 2.7351,
+              "recent_trend_skill_pct": 7.304
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 5.92483,
+          "validation_persistence_mae_tmc": 7.46586,
+          "validation_recent_trend_mae_tmc": 6.94321,
+          "validation_mae_skill_pct": 20.641,
+          "validation_recent_trend_skill_pct": 7.001,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1581,
+          "validation_blocks": [
+            {
+              "start": "2019-07-05",
+              "end": "2021-09-02",
+              "coverage_days": 791
+            },
+            {
+              "start": "2021-09-03",
+              "end": "2023-11-01",
+              "coverage_days": 790
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 4.9018,
+              "persistence_mae_tmc": 8.89042,
+              "mae_skill_pct": 44.864,
+              "recent_trend_mae_tmc": 8.18963,
+              "recent_trend_skill_pct": 7.883
+            },
+            {
+              "model_mae_tmc": 6.94657,
+              "persistence_mae_tmc": 6.04311,
+              "mae_skill_pct": -14.95,
+              "recent_trend_mae_tmc": 5.69838,
+              "recent_trend_skill_pct": 5.705
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.9924,
+          "mae_tmc": 0.32944,
+          "rmse_tmc": 1.61634
+        },
+        "t+7": {
+          "r2": 0.96684,
+          "mae_tmc": 1.7572,
+          "rmse_tmc": 3.37245
+        },
+        "t+14": {
+          "r2": 0.90247,
+          "mae_tmc": 3.32038,
+          "rmse_tmc": 5.77656
+        },
+        "t+30": {
+          "r2": 0.67004,
+          "mae_tmc": 6.83458,
+          "rmse_tmc": 10.60399
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.99232,
+          "mae_tmc": 0.36596,
+          "rmse_tmc": 1.62471
+        },
+        "t+7": {
+          "r2": 0.96166,
+          "mae_tmc": 1.99478,
+          "rmse_tmc": 3.62651
+        },
+        "t+14": {
+          "r2": 0.88455,
+          "mae_tmc": 3.80664,
+          "rmse_tmc": 6.28505
+        },
+        "t+30": {
+          "r2": 0.61118,
+          "mae_tmc": 7.80039,
+          "rmse_tmc": 11.51105
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.32944,
+          "persistence_mae_tmc": 0.36596,
+          "mae_skill_pct": 9.979,
+          "model_rmse_tmc": 1.61634,
+          "persistence_rmse_tmc": 1.62471,
+          "rmse_skill_pct": 0.516
+        },
+        "t+7": {
+          "model_mae_tmc": 1.7572,
+          "persistence_mae_tmc": 1.99478,
+          "mae_skill_pct": 11.91,
+          "model_rmse_tmc": 3.37245,
+          "persistence_rmse_tmc": 3.62651,
+          "rmse_skill_pct": 7.006
+        },
+        "t+14": {
+          "model_mae_tmc": 3.32038,
+          "persistence_mae_tmc": 3.80664,
+          "mae_skill_pct": 12.774,
+          "model_rmse_tmc": 5.77656,
+          "persistence_rmse_tmc": 6.28505,
+          "rmse_skill_pct": 8.09
+        },
+        "t+30": {
+          "model_mae_tmc": 6.83458,
+          "persistence_mae_tmc": 7.80039,
+          "mae_skill_pct": 12.382,
+          "model_rmse_tmc": 10.60399,
+          "persistence_rmse_tmc": 11.51105,
+          "rmse_skill_pct": 7.88
+        }
+      }
+    },
+    {
+      "dam_name": "hemavathy",
+      "rows_labeled": 9986,
+      "feature_count": 37,
+      "sequence_length": 14,
+      "best_epoch": 8,
+      "test_origins": 1498,
+      "validation_start": "2015-09-26",
+      "validation_end": "2022-06-27",
+      "validation_coverage_days": 2467,
+      "test_start": "2022-07-28",
+      "test_end": "2026-09-02",
+      "test_coverage_days": 1498,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "persistence",
+          "validation_model_mae_tmc": 0.16272,
+          "validation_persistence_mae_tmc": 0.1452,
+          "validation_recent_trend_mae_tmc": 0.14273,
+          "validation_mae_skill_pct": -12.068,
+          "validation_recent_trend_skill_pct": 1.701,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2467,
+          "validation_blocks": [
+            {
+              "start": "2015-09-26",
+              "end": "2019-02-09",
+              "coverage_days": 1233
+            },
+            {
+              "start": "2019-02-10",
+              "end": "2022-06-27",
+              "coverage_days": 1234
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.15338,
+              "persistence_mae_tmc": 0.13421,
+              "mae_skill_pct": -14.28,
+              "recent_trend_mae_tmc": 0.13957,
+              "recent_trend_skill_pct": -3.993
+            },
+            {
+              "model_mae_tmc": 0.17206,
+              "persistence_mae_tmc": 0.15618,
+              "mae_skill_pct": -10.169,
+              "recent_trend_mae_tmc": 0.14588,
+              "recent_trend_skill_pct": 6.59
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.87593,
+          "validation_persistence_mae_tmc": 0.92873,
+          "validation_recent_trend_mae_tmc": 0.87018,
+          "validation_mae_skill_pct": 5.685,
+          "validation_recent_trend_skill_pct": 6.304,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2467,
+          "validation_blocks": [
+            {
+              "start": "2015-09-26",
+              "end": "2019-02-09",
+              "coverage_days": 1233
+            },
+            {
+              "start": "2019-02-10",
+              "end": "2022-06-27",
+              "coverage_days": 1234
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.7434,
+              "persistence_mae_tmc": 0.81841,
+              "mae_skill_pct": 9.165,
+              "recent_trend_mae_tmc": 0.75763,
+              "recent_trend_skill_pct": 7.426
+            },
+            {
+              "model_mae_tmc": 1.00835,
+              "persistence_mae_tmc": 1.03896,
+              "mae_skill_pct": 2.947,
+              "recent_trend_mae_tmc": 0.98265,
+              "recent_trend_skill_pct": 5.42
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 1.83125,
+          "validation_persistence_mae_tmc": 1.77779,
+          "validation_recent_trend_mae_tmc": 1.66793,
+          "validation_mae_skill_pct": -3.007,
+          "validation_recent_trend_skill_pct": 6.18,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2467,
+          "validation_blocks": [
+            {
+              "start": "2015-09-26",
+              "end": "2019-02-09",
+              "coverage_days": 1233
+            },
+            {
+              "start": "2019-02-10",
+              "end": "2022-06-27",
+              "coverage_days": 1234
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 1.37822,
+              "persistence_mae_tmc": 1.53215,
+              "mae_skill_pct": 10.046,
+              "recent_trend_mae_tmc": 1.39436,
+              "recent_trend_skill_pct": 8.993
+            },
+            {
+              "model_mae_tmc": 2.28391,
+              "persistence_mae_tmc": 2.02324,
+              "mae_skill_pct": -12.884,
+              "recent_trend_mae_tmc": 1.94128,
+              "recent_trend_skill_pct": 4.051
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 3.65496,
+          "validation_persistence_mae_tmc": 3.56463,
+          "validation_recent_trend_mae_tmc": 3.36488,
+          "validation_mae_skill_pct": -2.534,
+          "validation_recent_trend_skill_pct": 5.604,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2467,
+          "validation_blocks": [
+            {
+              "start": "2015-09-26",
+              "end": "2019-02-09",
+              "coverage_days": 1233
+            },
+            {
+              "start": "2019-02-10",
+              "end": "2022-06-27",
+              "coverage_days": 1234
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 2.70601,
+              "persistence_mae_tmc": 3.04752,
+              "mae_skill_pct": 11.206,
+              "recent_trend_mae_tmc": 2.74138,
+              "recent_trend_skill_pct": 10.046
+            },
+            {
+              "model_mae_tmc": 4.60313,
+              "persistence_mae_tmc": 4.08132,
+              "mae_skill_pct": -12.785,
+              "recent_trend_mae_tmc": 3.98788,
+              "recent_trend_skill_pct": 2.29
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.9987,
+          "mae_tmc": 0.15311,
+          "rmse_tmc": 0.30663
+        },
+        "t+7": {
+          "r2": 0.9643,
+          "mae_tmc": 0.8699,
+          "rmse_tmc": 1.60005
+        },
+        "t+14": {
+          "r2": 0.88381,
+          "mae_tmc": 1.68605,
+          "rmse_tmc": 2.87148
+        },
+        "t+30": {
+          "r2": 0.56614,
+          "mae_tmc": 3.45642,
+          "rmse_tmc": 5.50018
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.9987,
+          "mae_tmc": 0.15311,
+          "rmse_tmc": 0.30663
+        },
+        "t+7": {
+          "r2": 0.96064,
+          "mae_tmc": 0.93531,
+          "rmse_tmc": 1.68006
+        },
+        "t+14": {
+          "r2": 0.8743,
+          "mae_tmc": 1.79369,
+          "rmse_tmc": 2.98666
+        },
+        "t+30": {
+          "r2": 0.56358,
+          "mae_tmc": 3.56523,
+          "rmse_tmc": 5.51637
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.15311,
+          "persistence_mae_tmc": 0.15311,
+          "mae_skill_pct": 0.0,
+          "model_rmse_tmc": 0.30663,
+          "persistence_rmse_tmc": 0.30663,
+          "rmse_skill_pct": 0.0
+        },
+        "t+7": {
+          "model_mae_tmc": 0.8699,
+          "persistence_mae_tmc": 0.93531,
+          "mae_skill_pct": 6.994,
+          "model_rmse_tmc": 1.60005,
+          "persistence_rmse_tmc": 1.68006,
+          "rmse_skill_pct": 4.763
+        },
+        "t+14": {
+          "model_mae_tmc": 1.68605,
+          "persistence_mae_tmc": 1.79369,
+          "mae_skill_pct": 6.001,
+          "model_rmse_tmc": 2.87148,
+          "persistence_rmse_tmc": 2.98666,
+          "rmse_skill_pct": 3.856
+        },
+        "t+30": {
+          "model_mae_tmc": 3.45642,
+          "persistence_mae_tmc": 3.56523,
+          "mae_skill_pct": 3.052,
+          "model_rmse_tmc": 5.50018,
+          "persistence_rmse_tmc": 5.51637,
+          "rmse_skill_pct": 0.294
+        }
+      }
+    },
+    {
+      "dam_name": "kabini",
+      "rows_labeled": 9597,
+      "feature_count": 37,
+      "sequence_length": 14,
+      "best_epoch": 1,
+      "test_origins": 1440,
+      "validation_start": "2015-02-09",
+      "validation_end": "2022-03-14",
+      "validation_coverage_days": 2591,
+      "test_start": "2022-04-14",
+      "test_end": "2026-09-02",
+      "test_coverage_days": 1603,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.09623,
+          "validation_persistence_mae_tmc": 0.09294,
+          "validation_recent_trend_mae_tmc": 0.09033,
+          "validation_mae_skill_pct": -3.542,
+          "validation_recent_trend_skill_pct": 2.813,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2591,
+          "validation_blocks": [
+            {
+              "start": "2015-02-09",
+              "end": "2018-05-07",
+              "coverage_days": 1184
+            },
+            {
+              "start": "2018-05-08",
+              "end": "2022-03-14",
+              "coverage_days": 1407
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.06945,
+              "persistence_mae_tmc": 0.06986,
+              "mae_skill_pct": 0.584,
+              "recent_trend_mae_tmc": 0.06761,
+              "recent_trend_skill_pct": 3.216
+            },
+            {
+              "model_mae_tmc": 0.12299,
+              "persistence_mae_tmc": 0.116,
+              "mae_skill_pct": -6.024,
+              "recent_trend_mae_tmc": 0.11302,
+              "recent_trend_skill_pct": 2.571
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.48687,
+          "validation_persistence_mae_tmc": 0.49767,
+          "validation_recent_trend_mae_tmc": 0.48232,
+          "validation_mae_skill_pct": 2.169,
+          "validation_recent_trend_skill_pct": 3.084,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2591,
+          "validation_blocks": [
+            {
+              "start": "2015-02-09",
+              "end": "2018-05-07",
+              "coverage_days": 1184
+            },
+            {
+              "start": "2018-05-08",
+              "end": "2022-03-14",
+              "coverage_days": 1407
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.38559,
+              "persistence_mae_tmc": 0.40196,
+              "mae_skill_pct": 4.073,
+              "recent_trend_mae_tmc": 0.3887,
+              "recent_trend_skill_pct": 3.298
+            },
+            {
+              "model_mae_tmc": 0.58808,
+              "persistence_mae_tmc": 0.5933,
+              "mae_skill_pct": 0.88,
+              "recent_trend_mae_tmc": 0.57586,
+              "recent_trend_skill_pct": 2.94
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.8779,
+          "validation_persistence_mae_tmc": 0.87465,
+          "validation_recent_trend_mae_tmc": 0.84448,
+          "validation_mae_skill_pct": -0.372,
+          "validation_recent_trend_skill_pct": 3.45,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2591,
+          "validation_blocks": [
+            {
+              "start": "2015-02-09",
+              "end": "2018-05-07",
+              "coverage_days": 1184
+            },
+            {
+              "start": "2018-05-08",
+              "end": "2022-03-14",
+              "coverage_days": 1407
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.69278,
+              "persistence_mae_tmc": 0.70781,
+              "mae_skill_pct": 2.123,
+              "recent_trend_mae_tmc": 0.67866,
+              "recent_trend_skill_pct": 4.118
+            },
+            {
+              "model_mae_tmc": 1.06286,
+              "persistence_mae_tmc": 1.04135,
+              "mae_skill_pct": -2.066,
+              "recent_trend_mae_tmc": 1.01015,
+              "recent_trend_skill_pct": 2.996
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 1.54864,
+          "validation_persistence_mae_tmc": 1.56569,
+          "validation_recent_trend_mae_tmc": 1.511,
+          "validation_mae_skill_pct": 1.089,
+          "validation_recent_trend_skill_pct": 3.493,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 2591,
+          "validation_blocks": [
+            {
+              "start": "2015-02-09",
+              "end": "2018-05-07",
+              "coverage_days": 1184
+            },
+            {
+              "start": "2018-05-08",
+              "end": "2022-03-14",
+              "coverage_days": 1407
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 1.24347,
+              "persistence_mae_tmc": 1.28985,
+              "mae_skill_pct": 3.596,
+              "recent_trend_mae_tmc": 1.21128,
+              "recent_trend_skill_pct": 6.092
+            },
+            {
+              "model_mae_tmc": 1.85356,
+              "persistence_mae_tmc": 1.84131,
+              "mae_skill_pct": -0.666,
+              "recent_trend_mae_tmc": 1.81048,
+              "recent_trend_skill_pct": 1.674
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.93591,
+          "mae_tmc": 0.18274,
+          "rmse_tmc": 0.88222
+        },
+        "t+7": {
+          "r2": 0.81875,
+          "mae_tmc": 0.68046,
+          "rmse_tmc": 1.48191
+        },
+        "t+14": {
+          "r2": 0.65434,
+          "mae_tmc": 1.10882,
+          "rmse_tmc": 2.05237
+        },
+        "t+30": {
+          "r2": 0.25637,
+          "mae_tmc": 1.83766,
+          "rmse_tmc": 3.04359
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.93632,
+          "mae_tmc": 0.18459,
+          "rmse_tmc": 0.87937
+        },
+        "t+7": {
+          "r2": 0.82339,
+          "mae_tmc": 0.67938,
+          "rmse_tmc": 1.46281
+        },
+        "t+14": {
+          "r2": 0.66973,
+          "mae_tmc": 1.0924,
+          "rmse_tmc": 2.00616
+        },
+        "t+30": {
+          "r2": 0.31807,
+          "mae_tmc": 1.75618,
+          "rmse_tmc": 2.91459
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.18274,
+          "persistence_mae_tmc": 0.18459,
+          "mae_skill_pct": 1.001,
+          "model_rmse_tmc": 0.88222,
+          "persistence_rmse_tmc": 0.87937,
+          "rmse_skill_pct": -0.324
+        },
+        "t+7": {
+          "model_mae_tmc": 0.68046,
+          "persistence_mae_tmc": 0.67938,
+          "mae_skill_pct": -0.159,
+          "model_rmse_tmc": 1.48191,
+          "persistence_rmse_tmc": 1.46281,
+          "rmse_skill_pct": -1.306
+        },
+        "t+14": {
+          "model_mae_tmc": 1.10882,
+          "persistence_mae_tmc": 1.0924,
+          "mae_skill_pct": -1.503,
+          "model_rmse_tmc": 2.05237,
+          "persistence_rmse_tmc": 2.00616,
+          "rmse_skill_pct": -2.304
+        },
+        "t+30": {
+          "model_mae_tmc": 1.83766,
+          "persistence_mae_tmc": 1.75618,
+          "mae_skill_pct": -4.64,
+          "model_rmse_tmc": 3.04359,
+          "persistence_rmse_tmc": 2.91459,
+          "rmse_skill_pct": -4.426
+        }
+      }
+    },
+    {
+      "dam_name": "linganamakki",
+      "rows_labeled": 792,
+      "feature_count": 37,
+      "sequence_length": 14,
+      "best_epoch": 5,
+      "test_origins": 119,
+      "validation_start": "2024-11-25",
+      "validation_end": "2025-05-11",
+      "validation_coverage_days": 168,
+      "test_start": "2025-06-11",
+      "test_end": "2025-10-24",
+      "test_coverage_days": 136,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.3502,
+          "validation_persistence_mae_tmc": 0.60397,
+          "validation_recent_trend_mae_tmc": 0.45836,
+          "validation_mae_skill_pct": 42.017,
+          "validation_recent_trend_skill_pct": 24.109,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.24314,
+              "persistence_mae_tmc": 0.56846,
+              "mae_skill_pct": 57.228,
+              "recent_trend_mae_tmc": 0.43695,
+              "recent_trend_skill_pct": 23.135
+            },
+            {
+              "model_mae_tmc": 0.45726,
+              "persistence_mae_tmc": 0.63949,
+              "mae_skill_pct": 28.496,
+              "recent_trend_mae_tmc": 0.47978,
+              "recent_trend_skill_pct": 24.974
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 2.90575,
+          "validation_persistence_mae_tmc": 4.22344,
+          "validation_recent_trend_mae_tmc": 3.19181,
+          "validation_mae_skill_pct": 31.199,
+          "validation_recent_trend_skill_pct": 24.426,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 2.62729,
+              "persistence_mae_tmc": 4.02078,
+              "mae_skill_pct": 34.657,
+              "recent_trend_mae_tmc": 3.07548,
+              "recent_trend_skill_pct": 23.51
+            },
+            {
+              "model_mae_tmc": 3.1842,
+              "persistence_mae_tmc": 4.4261,
+              "mae_skill_pct": 28.059,
+              "recent_trend_mae_tmc": 3.30813,
+              "recent_trend_skill_pct": 25.259
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 5.11009,
+          "validation_persistence_mae_tmc": 8.41238,
+          "validation_recent_trend_mae_tmc": 6.34912,
+          "validation_mae_skill_pct": 39.255,
+          "validation_recent_trend_skill_pct": 24.526,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 4.63576,
+              "persistence_mae_tmc": 8.22128,
+              "mae_skill_pct": 43.613,
+              "recent_trend_mae_tmc": 6.33069,
+              "recent_trend_skill_pct": 22.996
+            },
+            {
+              "model_mae_tmc": 5.58443,
+              "persistence_mae_tmc": 8.60348,
+              "mae_skill_pct": 35.091,
+              "recent_trend_mae_tmc": 6.36755,
+              "recent_trend_skill_pct": 25.989
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 9.84423,
+          "validation_persistence_mae_tmc": 17.31575,
+          "validation_recent_trend_mae_tmc": 12.89448,
+          "validation_mae_skill_pct": 43.149,
+          "validation_recent_trend_skill_pct": 25.533,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 8.81155,
+              "persistence_mae_tmc": 18.268,
+              "mae_skill_pct": 51.765,
+              "recent_trend_mae_tmc": 14.21674,
+              "recent_trend_skill_pct": 22.177
+            },
+            {
+              "model_mae_tmc": 10.87691,
+              "persistence_mae_tmc": 16.36351,
+              "mae_skill_pct": 33.529,
+              "recent_trend_mae_tmc": 11.57222,
+              "recent_trend_skill_pct": 29.28
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.99829,
+          "mae_tmc": 1.02581,
+          "rmse_tmc": 1.5303
+        },
+        "t+7": {
+          "r2": 0.92703,
+          "mae_tmc": 6.33024,
+          "rmse_tmc": 8.68466
+        },
+        "t+14": {
+          "r2": 0.63172,
+          "mae_tmc": 11.73076,
+          "rmse_tmc": 15.82198
+        },
+        "t+30": {
+          "r2": -3.26047,
+          "mae_tmc": 20.58597,
+          "rmse_tmc": 29.08741
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.99788,
+          "mae_tmc": 1.16457,
+          "rmse_tmc": 1.70562
+        },
+        "t+7": {
+          "r2": 0.90293,
+          "mae_tmc": 7.40989,
+          "rmse_tmc": 10.0165
+        },
+        "t+14": {
+          "r2": 0.49929,
+          "mae_tmc": 13.93645,
+          "rmse_tmc": 18.44852
+        },
+        "t+30": {
+          "r2": -4.82692,
+          "mae_tmc": 25.45307,
+          "rmse_tmc": 34.01698
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 1.02581,
+          "persistence_mae_tmc": 1.16457,
+          "mae_skill_pct": 11.915,
+          "model_rmse_tmc": 1.5303,
+          "persistence_rmse_tmc": 1.70562,
+          "rmse_skill_pct": 10.278
+        },
+        "t+7": {
+          "model_mae_tmc": 6.33024,
+          "persistence_mae_tmc": 7.40989,
+          "mae_skill_pct": 14.57,
+          "model_rmse_tmc": 8.68466,
+          "persistence_rmse_tmc": 10.0165,
+          "rmse_skill_pct": 13.296
+        },
+        "t+14": {
+          "model_mae_tmc": 11.73076,
+          "persistence_mae_tmc": 13.93645,
+          "mae_skill_pct": 15.827,
+          "model_rmse_tmc": 15.82198,
+          "persistence_rmse_tmc": 18.44852,
+          "rmse_skill_pct": 14.237
+        },
+        "t+30": {
+          "model_mae_tmc": 20.58597,
+          "persistence_mae_tmc": 25.45307,
+          "mae_skill_pct": 19.122,
+          "model_rmse_tmc": 29.08741,
+          "persistence_rmse_tmc": 34.01698,
+          "rmse_skill_pct": 14.491
+        }
+      }
+    },
+    {
+      "dam_name": "malaprabha",
+      "rows_labeled": 5433,
+      "feature_count": 37,
+      "sequence_length": 14,
+      "best_epoch": 1,
+      "test_origins": 815,
+      "validation_start": "2020-05-17",
+      "validation_end": "2024-02-27",
+      "validation_coverage_days": 1382,
+      "test_start": "2024-03-29",
+      "test_end": "2026-09-01",
+      "test_coverage_days": 887,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.2024,
+          "validation_persistence_mae_tmc": 0.20873,
+          "validation_recent_trend_mae_tmc": 0.18794,
+          "validation_mae_skill_pct": 3.035,
+          "validation_recent_trend_skill_pct": 9.962,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1382,
+          "validation_blocks": [
+            {
+              "start": "2020-05-17",
+              "end": "2022-03-11",
+              "coverage_days": 664
+            },
+            {
+              "start": "2022-03-12",
+              "end": "2024-02-27",
+              "coverage_days": 718
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.17928,
+              "persistence_mae_tmc": 0.19583,
+              "mae_skill_pct": 8.45,
+              "recent_trend_mae_tmc": 0.17433,
+              "recent_trend_skill_pct": 10.977
+            },
+            {
+              "model_mae_tmc": 0.22547,
+              "persistence_mae_tmc": 0.22161,
+              "mae_skill_pct": -1.742,
+              "recent_trend_mae_tmc": 0.20152,
+              "recent_trend_skill_pct": 9.066
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.99378,
+          "validation_persistence_mae_tmc": 1.1165,
+          "validation_recent_trend_mae_tmc": 0.95401,
+          "validation_mae_skill_pct": 10.992,
+          "validation_recent_trend_skill_pct": 14.554,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1382,
+          "validation_blocks": [
+            {
+              "start": "2020-05-17",
+              "end": "2022-03-11",
+              "coverage_days": 664
+            },
+            {
+              "start": "2022-03-12",
+              "end": "2024-02-27",
+              "coverage_days": 718
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.96102,
+              "persistence_mae_tmc": 1.19294,
+              "mae_skill_pct": 19.441,
+              "recent_trend_mae_tmc": 1.01531,
+              "recent_trend_skill_pct": 14.89
+            },
+            {
+              "model_mae_tmc": 1.02649,
+              "persistence_mae_tmc": 1.04018,
+              "mae_skill_pct": 1.316,
+              "recent_trend_mae_tmc": 0.8928,
+              "recent_trend_skill_pct": 14.169
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 1.75834,
+          "validation_persistence_mae_tmc": 2.0583,
+          "validation_recent_trend_mae_tmc": 1.74672,
+          "validation_mae_skill_pct": 14.573,
+          "validation_recent_trend_skill_pct": 15.138,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1382,
+          "validation_blocks": [
+            {
+              "start": "2020-05-17",
+              "end": "2022-03-11",
+              "coverage_days": 664
+            },
+            {
+              "start": "2022-03-12",
+              "end": "2024-02-27",
+              "coverage_days": 718
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 1.72673,
+              "persistence_mae_tmc": 2.26451,
+              "mae_skill_pct": 23.748,
+              "recent_trend_mae_tmc": 1.92208,
+              "recent_trend_skill_pct": 15.121
+            },
+            {
+              "model_mae_tmc": 1.7899,
+              "persistence_mae_tmc": 1.85239,
+              "mae_skill_pct": 3.374,
+              "recent_trend_mae_tmc": 1.57161,
+              "recent_trend_skill_pct": 15.158
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 3.63878,
+          "validation_persistence_mae_tmc": 4.07258,
+          "validation_recent_trend_mae_tmc": 3.4593,
+          "validation_mae_skill_pct": 10.652,
+          "validation_recent_trend_skill_pct": 15.059,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1382,
+          "validation_blocks": [
+            {
+              "start": "2020-05-17",
+              "end": "2022-03-11",
+              "coverage_days": 664
+            },
+            {
+              "start": "2022-03-12",
+              "end": "2024-02-27",
+              "coverage_days": 718
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 3.40798,
+              "persistence_mae_tmc": 4.57666,
+              "mae_skill_pct": 25.536,
+              "recent_trend_mae_tmc": 3.8836,
+              "recent_trend_skill_pct": 15.143
+            },
+            {
+              "model_mae_tmc": 3.86924,
+              "persistence_mae_tmc": 3.56926,
+              "mae_skill_pct": -8.405,
+              "recent_trend_mae_tmc": 3.03565,
+              "recent_trend_skill_pct": 14.95
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.99931,
+          "mae_tmc": 0.14884,
+          "rmse_tmc": 0.28069
+        },
+        "t+7": {
+          "r2": 0.97512,
+          "mae_tmc": 0.96692,
+          "rmse_tmc": 1.67059
+        },
+        "t+14": {
+          "r2": 0.91248,
+          "mae_tmc": 1.8968,
+          "rmse_tmc": 3.12203
+        },
+        "t+30": {
+          "r2": 0.71151,
+          "mae_tmc": 3.76393,
+          "rmse_tmc": 5.66095
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.99921,
+          "mae_tmc": 0.17216,
+          "rmse_tmc": 0.29951
+        },
+        "t+7": {
+          "r2": 0.97073,
+          "mae_tmc": 1.14428,
+          "rmse_tmc": 1.8117
+        },
+        "t+14": {
+          "r2": 0.89664,
+          "mae_tmc": 2.2352,
+          "rmse_tmc": 3.39268
+        },
+        "t+30": {
+          "r2": 0.65537,
+          "mae_tmc": 4.40771,
+          "rmse_tmc": 6.18727
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.14884,
+          "persistence_mae_tmc": 0.17216,
+          "mae_skill_pct": 13.548,
+          "model_rmse_tmc": 0.28069,
+          "persistence_rmse_tmc": 0.29951,
+          "rmse_skill_pct": 6.282
+        },
+        "t+7": {
+          "model_mae_tmc": 0.96692,
+          "persistence_mae_tmc": 1.14428,
+          "mae_skill_pct": 15.499,
+          "model_rmse_tmc": 1.67059,
+          "persistence_rmse_tmc": 1.8117,
+          "rmse_skill_pct": 7.789
+        },
+        "t+14": {
+          "model_mae_tmc": 1.8968,
+          "persistence_mae_tmc": 2.2352,
+          "mae_skill_pct": 15.14,
+          "model_rmse_tmc": 3.12203,
+          "persistence_rmse_tmc": 3.39268,
+          "rmse_skill_pct": 7.978
+        },
+        "t+30": {
+          "model_mae_tmc": 3.76393,
+          "persistence_mae_tmc": 4.40771,
+          "mae_skill_pct": 14.606,
+          "model_rmse_tmc": 5.66095,
+          "persistence_rmse_tmc": 6.18727,
+          "rmse_skill_pct": 8.507
+        }
+      }
+    },
+    {
+      "dam_name": "supa",
+      "rows_labeled": 792,
+      "feature_count": 45,
+      "sequence_length": 14,
+      "best_epoch": 29,
+      "test_origins": 119,
+      "validation_start": "2024-11-25",
+      "validation_end": "2025-05-11",
+      "validation_coverage_days": 168,
+      "test_start": "2025-06-11",
+      "test_end": "2025-10-24",
+      "test_coverage_days": 136,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.43463,
+          "validation_persistence_mae_tmc": 0.53199,
+          "validation_recent_trend_mae_tmc": 0.40909,
+          "validation_mae_skill_pct": 18.3,
+          "validation_recent_trend_skill_pct": 23.102,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.43178,
+              "persistence_mae_tmc": 0.48825,
+              "mae_skill_pct": 11.566,
+              "recent_trend_mae_tmc": 0.38651,
+              "recent_trend_skill_pct": 20.838
+            },
+            {
+              "model_mae_tmc": 0.43748,
+              "persistence_mae_tmc": 0.57572,
+              "mae_skill_pct": 24.011,
+              "recent_trend_mae_tmc": 0.43166,
+              "recent_trend_skill_pct": 25.023
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 3.16432,
+          "validation_persistence_mae_tmc": 3.7261,
+          "validation_recent_trend_mae_tmc": 2.85777,
+          "validation_mae_skill_pct": 15.077,
+          "validation_recent_trend_skill_pct": 23.304,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 2.99277,
+              "persistence_mae_tmc": 3.45045,
+              "mae_skill_pct": 13.264,
+              "recent_trend_mae_tmc": 2.72221,
+              "recent_trend_skill_pct": 21.106
+            },
+            {
+              "model_mae_tmc": 3.33587,
+              "persistence_mae_tmc": 4.00175,
+              "mae_skill_pct": 16.64,
+              "recent_trend_mae_tmc": 2.99333,
+              "recent_trend_skill_pct": 25.199
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 6.49965,
+          "validation_persistence_mae_tmc": 7.47213,
+          "validation_recent_trend_mae_tmc": 5.73548,
+          "validation_mae_skill_pct": 13.015,
+          "validation_recent_trend_skill_pct": 23.242,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 6.12475,
+              "persistence_mae_tmc": 7.16434,
+              "mae_skill_pct": 14.511,
+              "recent_trend_mae_tmc": 5.70787,
+              "recent_trend_skill_pct": 20.329
+            },
+            {
+              "model_mae_tmc": 6.87455,
+              "persistence_mae_tmc": 7.77992,
+              "mae_skill_pct": 11.637,
+              "recent_trend_mae_tmc": 5.76309,
+              "recent_trend_skill_pct": 25.924
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 11.60333,
+          "validation_persistence_mae_tmc": 15.86799,
+          "validation_recent_trend_mae_tmc": 12.14659,
+          "validation_mae_skill_pct": 26.876,
+          "validation_recent_trend_skill_pct": 23.452,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 168,
+          "validation_blocks": [
+            {
+              "start": "2024-11-25",
+              "end": "2025-02-16",
+              "coverage_days": 84
+            },
+            {
+              "start": "2025-02-17",
+              "end": "2025-05-11",
+              "coverage_days": 84
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 11.60586,
+              "persistence_mae_tmc": 16.23462,
+              "mae_skill_pct": 28.512,
+              "recent_trend_mae_tmc": 13.11362,
+              "recent_trend_skill_pct": 19.224
+            },
+            {
+              "model_mae_tmc": 11.60079,
+              "persistence_mae_tmc": 15.50136,
+              "mae_skill_pct": 25.163,
+              "recent_trend_mae_tmc": 11.17957,
+              "recent_trend_skill_pct": 27.88
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.99872,
+          "mae_tmc": 0.75383,
+          "rmse_tmc": 1.09164
+        },
+        "t+7": {
+          "r2": 0.9452,
+          "mae_tmc": 5.09297,
+          "rmse_tmc": 6.52152
+        },
+        "t+14": {
+          "r2": 0.75469,
+          "mae_tmc": 9.8204,
+          "rmse_tmc": 12.03068
+        },
+        "t+30": {
+          "r2": -0.65143,
+          "mae_tmc": 18.34879,
+          "rmse_tmc": 21.82806
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.99842,
+          "mae_tmc": 0.86683,
+          "rmse_tmc": 1.212
+        },
+        "t+7": {
+          "r2": 0.9295,
+          "mae_tmc": 5.80351,
+          "rmse_tmc": 7.39678
+        },
+        "t+14": {
+          "r2": 0.68072,
+          "mae_tmc": 11.23943,
+          "rmse_tmc": 13.72533
+        },
+        "t+30": {
+          "r2": -1.23047,
+          "mae_tmc": 21.3947,
+          "rmse_tmc": 25.36783
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.75383,
+          "persistence_mae_tmc": 0.86683,
+          "mae_skill_pct": 13.036,
+          "model_rmse_tmc": 1.09164,
+          "persistence_rmse_tmc": 1.212,
+          "rmse_skill_pct": 9.931
+        },
+        "t+7": {
+          "model_mae_tmc": 5.09297,
+          "persistence_mae_tmc": 5.80351,
+          "mae_skill_pct": 12.243,
+          "model_rmse_tmc": 6.52152,
+          "persistence_rmse_tmc": 7.39678,
+          "rmse_skill_pct": 11.833
+        },
+        "t+14": {
+          "model_mae_tmc": 9.8204,
+          "persistence_mae_tmc": 11.23943,
+          "mae_skill_pct": 12.625,
+          "model_rmse_tmc": 12.03068,
+          "persistence_rmse_tmc": 13.72533,
+          "rmse_skill_pct": 12.347
+        },
+        "t+30": {
+          "model_mae_tmc": 18.34879,
+          "persistence_mae_tmc": 21.3947,
+          "mae_skill_pct": 14.237,
+          "model_rmse_tmc": 21.82806,
+          "persistence_rmse_tmc": 25.36783,
+          "rmse_skill_pct": 13.954
+        }
+      }
+    },
+    {
+      "dam_name": "tungabhadra",
+      "rows_labeled": 6737,
+      "feature_count": 45,
+      "sequence_length": 14,
+      "best_epoch": 3,
+      "test_origins": 1011,
+      "validation_start": "2019-04-12",
+      "validation_end": "2023-10-24",
+      "validation_coverage_days": 1657,
+      "test_start": "2023-11-24",
+      "test_end": "2026-09-02",
+      "test_coverage_days": 1014,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.6248,
+          "validation_persistence_mae_tmc": 0.71432,
+          "validation_recent_trend_mae_tmc": 0.65928,
+          "validation_mae_skill_pct": 12.532,
+          "validation_recent_trend_skill_pct": 7.705,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1657,
+          "validation_blocks": [
+            {
+              "start": "2019-04-12",
+              "end": "2021-07-19",
+              "coverage_days": 830
+            },
+            {
+              "start": "2021-07-20",
+              "end": "2023-10-24",
+              "coverage_days": 827
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.42607,
+              "persistence_mae_tmc": 0.58515,
+              "mae_skill_pct": 27.187,
+              "recent_trend_mae_tmc": 0.53587,
+              "recent_trend_skill_pct": 8.423
+            },
+            {
+              "model_mae_tmc": 0.82354,
+              "persistence_mae_tmc": 0.84349,
+              "mae_skill_pct": 2.365,
+              "recent_trend_mae_tmc": 0.78269,
+              "recent_trend_skill_pct": 7.207
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 3.4529,
+          "validation_persistence_mae_tmc": 4.04346,
+          "validation_recent_trend_mae_tmc": 3.68952,
+          "validation_mae_skill_pct": 14.605,
+          "validation_recent_trend_skill_pct": 8.753,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1657,
+          "validation_blocks": [
+            {
+              "start": "2019-04-12",
+              "end": "2021-07-19",
+              "coverage_days": 830
+            },
+            {
+              "start": "2021-07-20",
+              "end": "2023-10-24",
+              "coverage_days": 827
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 2.63077,
+              "persistence_mae_tmc": 3.88632,
+              "mae_skill_pct": 32.307,
+              "recent_trend_mae_tmc": 3.50483,
+              "recent_trend_skill_pct": 9.816
+            },
+            {
+              "model_mae_tmc": 4.27503,
+              "persistence_mae_tmc": 4.2006,
+              "mae_skill_pct": -1.772,
+              "recent_trend_mae_tmc": 3.87421,
+              "recent_trend_skill_pct": 7.77
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 6.44228,
+          "validation_persistence_mae_tmc": 7.7418,
+          "validation_recent_trend_mae_tmc": 7.12698,
+          "validation_mae_skill_pct": 16.786,
+          "validation_recent_trend_skill_pct": 7.942,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1657,
+          "validation_blocks": [
+            {
+              "start": "2019-04-12",
+              "end": "2021-07-19",
+              "coverage_days": 830
+            },
+            {
+              "start": "2021-07-20",
+              "end": "2023-10-24",
+              "coverage_days": 827
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 5.34215,
+              "persistence_mae_tmc": 7.86363,
+              "mae_skill_pct": 32.065,
+              "recent_trend_mae_tmc": 7.15697,
+              "recent_trend_skill_pct": 8.986
+            },
+            {
+              "model_mae_tmc": 7.54241,
+              "persistence_mae_tmc": 7.61998,
+              "mae_skill_pct": 1.018,
+              "recent_trend_mae_tmc": 7.09698,
+              "recent_trend_skill_pct": 6.863
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "model",
+          "validation_model_mae_tmc": 12.28925,
+          "validation_persistence_mae_tmc": 16.14393,
+          "validation_recent_trend_mae_tmc": 14.89332,
+          "validation_mae_skill_pct": 23.877,
+          "validation_recent_trend_skill_pct": 7.747,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 1657,
+          "validation_blocks": [
+            {
+              "start": "2019-04-12",
+              "end": "2021-07-19",
+              "coverage_days": 830
+            },
+            {
+              "start": "2021-07-20",
+              "end": "2023-10-24",
+              "coverage_days": 827
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 10.11222,
+              "persistence_mae_tmc": 16.87464,
+              "mae_skill_pct": 40.074,
+              "recent_trend_mae_tmc": 15.25151,
+              "recent_trend_skill_pct": 9.619
+            },
+            {
+              "model_mae_tmc": 14.46627,
+              "persistence_mae_tmc": 15.41321,
+              "mae_skill_pct": 6.144,
+              "recent_trend_mae_tmc": 14.53514,
+              "recent_trend_skill_pct": 5.697
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.98651,
+          "mae_tmc": 0.89541,
+          "rmse_tmc": 4.1348
+        },
+        "t+7": {
+          "r2": 0.94719,
+          "mae_tmc": 3.70156,
+          "rmse_tmc": 8.20075
+        },
+        "t+14": {
+          "r2": 0.86935,
+          "mae_tmc": 6.66271,
+          "rmse_tmc": 12.90952
+        },
+        "t+30": {
+          "r2": 0.77873,
+          "mae_tmc": 9.33095,
+          "rmse_tmc": 16.74968
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.9865,
+          "mae_tmc": 0.93809,
+          "rmse_tmc": 4.13591
+        },
+        "t+7": {
+          "r2": 0.94394,
+          "mae_tmc": 3.93529,
+          "rmse_tmc": 8.44902
+        },
+        "t+14": {
+          "r2": 0.85882,
+          "mae_tmc": 7.01251,
+          "rmse_tmc": 13.41964
+        },
+        "t+30": {
+          "r2": 0.58949,
+          "mae_tmc": 13.41384,
+          "rmse_tmc": 22.81421
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.89541,
+          "persistence_mae_tmc": 0.93809,
+          "mae_skill_pct": 4.55,
+          "model_rmse_tmc": 4.1348,
+          "persistence_rmse_tmc": 4.13591,
+          "rmse_skill_pct": 0.027
+        },
+        "t+7": {
+          "model_mae_tmc": 3.70156,
+          "persistence_mae_tmc": 3.93529,
+          "mae_skill_pct": 5.939,
+          "model_rmse_tmc": 8.20075,
+          "persistence_rmse_tmc": 8.44902,
+          "rmse_skill_pct": 2.938
+        },
+        "t+14": {
+          "model_mae_tmc": 6.66271,
+          "persistence_mae_tmc": 7.01251,
+          "mae_skill_pct": 4.988,
+          "model_rmse_tmc": 12.90952,
+          "persistence_rmse_tmc": 13.41964,
+          "rmse_skill_pct": 3.801
+        },
+        "t+30": {
+          "model_mae_tmc": 9.33095,
+          "persistence_mae_tmc": 13.41384,
+          "mae_skill_pct": 30.438,
+          "model_rmse_tmc": 16.74968,
+          "persistence_rmse_tmc": 22.81421,
+          "rmse_skill_pct": 26.582
+        }
+      }
+    },
+    {
+      "dam_name": "vanivilasa_sagar",
+      "rows_labeled": 1868,
+      "feature_count": 45,
+      "sequence_length": 14,
+      "best_epoch": 3,
+      "test_origins": 281,
+      "validation_start": "2024-07-27",
+      "validation_end": "2025-10-06",
+      "validation_coverage_days": 437,
+      "test_start": "2025-11-06",
+      "test_end": "2026-09-01",
+      "test_coverage_days": 300,
+      "horizon_strategy": {
+        "t+1": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.14806,
+          "validation_persistence_mae_tmc": 0.15865,
+          "validation_recent_trend_mae_tmc": 0.15246,
+          "validation_mae_skill_pct": 6.671,
+          "validation_recent_trend_skill_pct": 3.899,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 437,
+          "validation_blocks": [
+            {
+              "start": "2024-07-27",
+              "end": "2025-03-01",
+              "coverage_days": 218
+            },
+            {
+              "start": "2025-03-02",
+              "end": "2025-10-06",
+              "coverage_days": 219
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.08607,
+              "persistence_mae_tmc": 0.0991,
+              "mae_skill_pct": 13.152,
+              "recent_trend_mae_tmc": 0.08969,
+              "recent_trend_skill_pct": 9.493
+            },
+            {
+              "model_mae_tmc": 0.20977,
+              "persistence_mae_tmc": 0.21792,
+              "mae_skill_pct": 3.737,
+              "recent_trend_mae_tmc": 0.21494,
+              "recent_trend_skill_pct": 1.367
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": false,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+7": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.3868,
+          "validation_persistence_mae_tmc": 0.48856,
+          "validation_recent_trend_mae_tmc": 0.42753,
+          "validation_mae_skill_pct": 20.828,
+          "validation_recent_trend_skill_pct": 12.492,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 437,
+          "validation_blocks": [
+            {
+              "start": "2024-07-27",
+              "end": "2025-03-01",
+              "coverage_days": 218
+            },
+            {
+              "start": "2025-03-02",
+              "end": "2025-10-06",
+              "coverage_days": 219
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.32789,
+              "persistence_mae_tmc": 0.46844,
+              "mae_skill_pct": 30.003,
+              "recent_trend_mae_tmc": 0.38487,
+              "recent_trend_skill_pct": 17.841
+            },
+            {
+              "model_mae_tmc": 0.44544,
+              "persistence_mae_tmc": 0.50859,
+              "mae_skill_pct": 12.416,
+              "recent_trend_mae_tmc": 0.47,
+              "recent_trend_skill_pct": 7.588
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+14": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 0.68521,
+          "validation_persistence_mae_tmc": 0.88132,
+          "validation_recent_trend_mae_tmc": 0.75181,
+          "validation_mae_skill_pct": 22.251,
+          "validation_recent_trend_skill_pct": 14.695,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 437,
+          "validation_blocks": [
+            {
+              "start": "2024-07-27",
+              "end": "2025-03-01",
+              "coverage_days": 218
+            },
+            {
+              "start": "2025-03-02",
+              "end": "2025-10-06",
+              "coverage_days": 219
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 0.61728,
+              "persistence_mae_tmc": 0.89142,
+              "mae_skill_pct": 30.754,
+              "recent_trend_mae_tmc": 0.70907,
+              "recent_trend_skill_pct": 20.457
+            },
+            {
+              "model_mae_tmc": 0.75284,
+              "persistence_mae_tmc": 0.87126,
+              "mae_skill_pct": 13.592,
+              "recent_trend_mae_tmc": 0.79435,
+              "recent_trend_skill_pct": 8.828
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        },
+        "t+30": {
+          "selected": "recent_trend",
+          "validation_model_mae_tmc": 1.33038,
+          "validation_persistence_mae_tmc": 1.78378,
+          "validation_recent_trend_mae_tmc": 1.52321,
+          "validation_mae_skill_pct": 25.418,
+          "validation_recent_trend_skill_pct": 14.608,
+          "minimum_skill_required_pct": 5.0,
+          "validation_coverage_days": 437,
+          "validation_blocks": [
+            {
+              "start": "2024-07-27",
+              "end": "2025-03-01",
+              "coverage_days": 218
+            },
+            {
+              "start": "2025-03-02",
+              "end": "2025-10-06",
+              "coverage_days": 219
+            }
+          ],
+          "block_scores": [
+            {
+              "model_mae_tmc": 1.20696,
+              "persistence_mae_tmc": 1.82339,
+              "mae_skill_pct": 33.807,
+              "recent_trend_mae_tmc": 1.46878,
+              "recent_trend_skill_pct": 19.448
+            },
+            {
+              "model_mae_tmc": 1.45323,
+              "persistence_mae_tmc": 1.74435,
+              "mae_skill_pct": 16.689,
+              "recent_trend_mae_tmc": 1.5774,
+              "recent_trend_skill_pct": 9.571
+            }
+          ],
+          "minimum_validation_block_days": 365,
+          "minimum_validation_skill_each_block_pct": 5.0,
+          "beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_beats_persistence_in_both_validation_blocks": true,
+          "recent_trend_validation_blocks_sufficient": true,
+          "minimum_recent_trend_validation_block_days": 60,
+          "minimum_recent_trend_validation_skill_pct": 0.5,
+          "trend_lookback_days": 30,
+          "trend_max_observation_gap_days": 90,
+          "trend_shrink": 0.25
+        }
+      },
+      "test_storage_metrics": {
+        "t+1": {
+          "r2": 0.99686,
+          "mae_tmc": 0.05233,
+          "rmse_tmc": 0.17151
+        },
+        "t+7": {
+          "r2": 0.98224,
+          "mae_tmc": 0.2408,
+          "rmse_tmc": 0.40905
+        },
+        "t+14": {
+          "r2": 0.95903,
+          "mae_tmc": 0.43637,
+          "rmse_tmc": 0.62657
+        },
+        "t+30": {
+          "r2": 0.8683,
+          "mae_tmc": 0.90623,
+          "rmse_tmc": 1.15865
+        }
+      },
+      "persistence_baseline": {
+        "t+1": {
+          "r2": 0.99685,
+          "mae_tmc": 0.0528,
+          "rmse_tmc": 0.1717
+        },
+        "t+7": {
+          "r2": 0.98139,
+          "mae_tmc": 0.2723,
+          "rmse_tmc": 0.41876
+        },
+        "t+14": {
+          "r2": 0.95456,
+          "mae_tmc": 0.50441,
+          "rmse_tmc": 0.6598
+        },
+        "t+30": {
+          "r2": 0.84476,
+          "mae_tmc": 1.06337,
+          "rmse_tmc": 1.25793
+        }
+      },
+      "test_skill_vs_persistence": {
+        "t+1": {
+          "model_mae_tmc": 0.05233,
+          "persistence_mae_tmc": 0.0528,
+          "mae_skill_pct": 0.883,
+          "model_rmse_tmc": 0.17151,
+          "persistence_rmse_tmc": 0.1717,
+          "rmse_skill_pct": 0.114
+        },
+        "t+7": {
+          "model_mae_tmc": 0.2408,
+          "persistence_mae_tmc": 0.2723,
+          "mae_skill_pct": 11.568,
+          "model_rmse_tmc": 0.40905,
+          "persistence_rmse_tmc": 0.41876,
+          "rmse_skill_pct": 2.32
+        },
+        "t+14": {
+          "model_mae_tmc": 0.43637,
+          "persistence_mae_tmc": 0.50441,
+          "mae_skill_pct": 13.49,
+          "model_rmse_tmc": 0.62657,
+          "persistence_rmse_tmc": 0.6598,
+          "rmse_skill_pct": 5.037
+        },
+        "t+30": {
+          "model_mae_tmc": 0.90623,
+          "persistence_mae_tmc": 1.06337,
+          "mae_skill_pct": 14.777,
+          "model_rmse_tmc": 1.15865,
+          "persistence_rmse_tmc": 1.25793,
+          "rmse_skill_pct": 7.892
+        }
+      }
+    }
+  ],
+  "failures": []
+}

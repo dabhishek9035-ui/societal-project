@@ -1,25 +1,51 @@
-# Python & Virtual Environments
+# Python bytecode and virtual environments
 __pycache__/
 *.py[cod]
+*$py.class
 venv/
 env/
+.venv/
 
-# Generated Data & Artifacts
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+
+# Node.js and Next.js build output
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Generated feature, split, and external weather data
 data/features/
 data/sequences/
+data/era5_land_karnataka/
 data/splits/
-data/*.joblib
 data/*.csv
+!data/imd_data/
 !data/imd_data/*.csv
 
-# Model Weights
-train/models/
+# Trained weights and scalers; keep small provenance reports
+train/models/*
+!train/models/*_manifest.json
+!train/models/training_summary.json
 *.pth
+*.pt
+*.joblib
+*.pkl
+/models/
 
-# Evaluation Outputs
+# Evaluation plots are generated; retain the CSV score report
 evaluation/plots/
-evaluation/metrics_summary.csv
+plots/
+evaluation/*
+!evaluation/evaluation_results.csv
 
-# IDE Settings
+# Editors and operating systems
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db

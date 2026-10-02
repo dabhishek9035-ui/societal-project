@@ -1,0 +1,388 @@
+{
+  "dam_name": "vanivilasa_sagar",
+  "rows_labeled": 1868,
+  "feature_count": 45,
+  "sequence_length": 14,
+  "best_epoch": 3,
+  "test_origins": 281,
+  "validation_start": "2024-07-27",
+  "validation_end": "2025-10-06",
+  "validation_coverage_days": 437,
+  "test_start": "2025-11-06",
+  "test_end": "2026-09-01",
+  "test_coverage_days": 300,
+  "horizon_strategy": {
+    "t+1": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 0.14806,
+      "validation_persistence_mae_tmc": 0.15865,
+      "validation_recent_trend_mae_tmc": 0.15246,
+      "validation_mae_skill_pct": 6.671,
+      "validation_recent_trend_skill_pct": 3.899,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 437,
+      "validation_blocks": [
+        {
+          "start": "2024-07-27",
+          "end": "2025-03-01",
+          "coverage_days": 218
+        },
+        {
+          "start": "2025-03-02",
+          "end": "2025-10-06",
+          "coverage_days": 219
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 0.08607,
+          "persistence_mae_tmc": 0.0991,
+          "mae_skill_pct": 13.152,
+          "recent_trend_mae_tmc": 0.08969,
+          "recent_trend_skill_pct": 9.493
+        },
+        {
+          "model_mae_tmc": 0.20977,
+          "persistence_mae_tmc": 0.21792,
+          "mae_skill_pct": 3.737,
+          "recent_trend_mae_tmc": 0.21494,
+          "recent_trend_skill_pct": 1.367
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": false,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    },
+    "t+7": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 0.3868,
+      "validation_persistence_mae_tmc": 0.48856,
+      "validation_recent_trend_mae_tmc": 0.42753,
+      "validation_mae_skill_pct": 20.828,
+      "validation_recent_trend_skill_pct": 12.492,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 437,
+      "validation_blocks": [
+        {
+          "start": "2024-07-27",
+          "end": "2025-03-01",
+          "coverage_days": 218
+        },
+        {
+          "start": "2025-03-02",
+          "end": "2025-10-06",
+          "coverage_days": 219
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 0.32789,
+          "persistence_mae_tmc": 0.46844,
+          "mae_skill_pct": 30.003,
+          "recent_trend_mae_tmc": 0.38487,
+          "recent_trend_skill_pct": 17.841
+        },
+        {
+          "model_mae_tmc": 0.44544,
+          "persistence_mae_tmc": 0.50859,
+          "mae_skill_pct": 12.416,
+          "recent_trend_mae_tmc": 0.47,
+          "recent_trend_skill_pct": 7.588
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    },
+    "t+14": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 0.68521,
+      "validation_persistence_mae_tmc": 0.88132,
+      "validation_recent_trend_mae_tmc": 0.75181,
+      "validation_mae_skill_pct": 22.251,
+      "validation_recent_trend_skill_pct": 14.695,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 437,
+      "validation_blocks": [
+        {
+          "start": "2024-07-27",
+          "end": "2025-03-01",
+          "coverage_days": 218
+        },
+        {
+          "start": "2025-03-02",
+          "end": "2025-10-06",
+          "coverage_days": 219
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 0.61728,
+          "persistence_mae_tmc": 0.89142,
+          "mae_skill_pct": 30.754,
+          "recent_trend_mae_tmc": 0.70907,
+          "recent_trend_skill_pct": 20.457
+        },
+        {
+          "model_mae_tmc": 0.75284,
+          "persistence_mae_tmc": 0.87126,
+          "mae_skill_pct": 13.592,
+          "recent_trend_mae_tmc": 0.79435,
+          "recent_trend_skill_pct": 8.828
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    },
+    "t+30": {
+      "selected": "recent_trend",
+      "validation_model_mae_tmc": 1.33038,
+      "validation_persistence_mae_tmc": 1.78378,
+      "validation_recent_trend_mae_tmc": 1.52321,
+      "validation_mae_skill_pct": 25.418,
+      "validation_recent_trend_skill_pct": 14.608,
+      "minimum_skill_required_pct": 5.0,
+      "validation_coverage_days": 437,
+      "validation_blocks": [
+        {
+          "start": "2024-07-27",
+          "end": "2025-03-01",
+          "coverage_days": 218
+        },
+        {
+          "start": "2025-03-02",
+          "end": "2025-10-06",
+          "coverage_days": 219
+        }
+      ],
+      "block_scores": [
+        {
+          "model_mae_tmc": 1.20696,
+          "persistence_mae_tmc": 1.82339,
+          "mae_skill_pct": 33.807,
+          "recent_trend_mae_tmc": 1.46878,
+          "recent_trend_skill_pct": 19.448
+        },
+        {
+          "model_mae_tmc": 1.45323,
+          "persistence_mae_tmc": 1.74435,
+          "mae_skill_pct": 16.689,
+          "recent_trend_mae_tmc": 1.5774,
+          "recent_trend_skill_pct": 9.571
+        }
+      ],
+      "minimum_validation_block_days": 365,
+      "minimum_validation_skill_each_block_pct": 5.0,
+      "beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_beats_persistence_in_both_validation_blocks": true,
+      "recent_trend_validation_blocks_sufficient": true,
+      "minimum_recent_trend_validation_block_days": 60,
+      "minimum_recent_trend_validation_skill_pct": 0.5,
+      "trend_lookback_days": 30,
+      "trend_max_observation_gap_days": 90,
+      "trend_shrink": 0.25
+    }
+  },
+  "test_storage_metrics": {
+    "t+1": {
+      "r2": 0.99686,
+      "mae_tmc": 0.05233,
+      "rmse_tmc": 0.17151
+    },
+    "t+7": {
+      "r2": 0.98224,
+      "mae_tmc": 0.2408,
+      "rmse_tmc": 0.40905
+    },
+    "t+14": {
+      "r2": 0.95903,
+      "mae_tmc": 0.43637,
+      "rmse_tmc": 0.62657
+    },
+    "t+30": {
+      "r2": 0.8683,
+      "mae_tmc": 0.90623,
+      "rmse_tmc": 1.15865
+    }
+  },
+  "persistence_baseline": {
+    "t+1": {
+      "r2": 0.99685,
+      "mae_tmc": 0.0528,
+      "rmse_tmc": 0.1717
+    },
+    "t+7": {
+      "r2": 0.98139,
+      "mae_tmc": 0.2723,
+      "rmse_tmc": 0.41876
+    },
+    "t+14": {
+      "r2": 0.95456,
+      "mae_tmc": 0.50441,
+      "rmse_tmc": 0.6598
+    },
+    "t+30": {
+      "r2": 0.84476,
+      "mae_tmc": 1.06337,
+      "rmse_tmc": 1.25793
+    }
+  },
+  "test_skill_vs_persistence": {
+    "t+1": {
+      "model_mae_tmc": 0.05233,
+      "persistence_mae_tmc": 0.0528,
+      "mae_skill_pct": 0.883,
+      "model_rmse_tmc": 0.17151,
+      "persistence_rmse_tmc": 0.1717,
+      "rmse_skill_pct": 0.114
+    },
+    "t+7": {
+      "model_mae_tmc": 0.2408,
+      "persistence_mae_tmc": 0.2723,
+      "mae_skill_pct": 11.568,
+      "model_rmse_tmc": 0.40905,
+      "persistence_rmse_tmc": 0.41876,
+      "rmse_skill_pct": 2.32
+    },
+    "t+14": {
+      "model_mae_tmc": 0.43637,
+      "persistence_mae_tmc": 0.50441,
+      "mae_skill_pct": 13.49,
+      "model_rmse_tmc": 0.62657,
+      "persistence_rmse_tmc": 0.6598,
+      "rmse_skill_pct": 5.037
+    },
+    "t+30": {
+      "model_mae_tmc": 0.90623,
+      "persistence_mae_tmc": 1.06337,
+      "mae_skill_pct": 14.777,
+      "model_rmse_tmc": 1.15865,
+      "persistence_rmse_tmc": 1.25793,
+      "rmse_skill_pct": 7.892
+    }
+  },
+  "feature_columns": [
+    "Percentage Full",
+    "Reservoir Level (ft)",
+    "Design Gross Capacity (TMC)",
+    "Gross Capacity (TMC)",
+    "Live Capacity (TMC)",
+    "Live Above Cill (TMC)",
+    "Inflow (Cusecs)",
+    "Outflow to River (Cusecs)",
+    "Canal Withdrawal (Cusecs)",
+    "Evaporation (Cusecs)",
+    "Cumulative Inflow (TMC)",
+    "Cumulative Outflow (TMC)",
+    "Cumulative Withdrawal (TMC)",
+    "Cumulative Evaporation (TMC)",
+    "RAINFALL",
+    "Current_Storage_TMC",
+    "sin_doy",
+    "cos_doy",
+    "is_monsoon",
+    "storage_lag_1",
+    "inflow_lag_1",
+    "outflow_lag_1",
+    "storage_lag_2",
+    "inflow_lag_2",
+    "outflow_lag_2",
+    "storage_lag_7",
+    "inflow_lag_7",
+    "outflow_lag_7",
+    "storage_lag_14",
+    "inflow_lag_14",
+    "outflow_lag_14",
+    "storage_lag_30",
+    "inflow_lag_30",
+    "outflow_lag_30",
+    "rain_roll_sum_3d",
+    "rain_roll_mean_3d",
+    "rain_roll_sum_7d",
+    "rain_roll_mean_7d",
+    "rain_roll_sum_14d",
+    "rain_roll_mean_14d",
+    "rain_roll_sum_30d",
+    "rain_roll_mean_30d",
+    "inflow_roll_mean_3d",
+    "inflow_roll_mean_7d",
+    "inflow_roll_mean_14d"
+  ],
+  "horizons_days": [
+    1,
+    7,
+    14,
+    30
+  ],
+  "missing_feature_fill_values": {
+    "Percentage Full": 76.6335,
+    "Reservoir Level (ft)": 2132.225,
+    "Design Gross Capacity (TMC)": 30.0,
+    "Gross Capacity (TMC)": 23.895,
+    "Live Capacity (TMC)": 21.325,
+    "Live Above Cill (TMC)": 22.025,
+    "Inflow (Cusecs)": 0.0,
+    "Outflow to River (Cusecs)": 147.0,
+    "Canal Withdrawal (Cusecs)": 0.0,
+    "Evaporation (Cusecs)": 0.0,
+    "Cumulative Inflow (TMC)": 0.349,
+    "Cumulative Outflow (TMC)": 1.96,
+    "Cumulative Withdrawal (TMC)": 0.461,
+    "Cumulative Evaporation (TMC)": 0.0,
+    "RAINFALL": 0.2,
+    "Current_Storage_TMC": 21.325,
+    "sin_doy": -0.0386957901765268,
+    "cos_doy": -0.0333235257116313,
+    "is_monsoon": 0.0,
+    "storage_lag_1": 21.325,
+    "inflow_lag_1": 0.0,
+    "outflow_lag_1": 147.0,
+    "storage_lag_2": 21.325,
+    "inflow_lag_2": 0.0,
+    "outflow_lag_2": 147.0,
+    "storage_lag_7": 21.325,
+    "inflow_lag_7": 0.0,
+    "outflow_lag_7": 147.0,
+    "storage_lag_14": 21.325,
+    "inflow_lag_14": 0.0,
+    "outflow_lag_14": 147.0,
+    "storage_lag_30": 21.325,
+    "inflow_lag_30": 0.0,
+    "outflow_lag_30": 147.0,
+    "rain_roll_sum_3d": 9.199999999999998,
+    "rain_roll_mean_3d": 3.066666666666666,
+    "rain_roll_sum_7d": 21.6,
+    "rain_roll_mean_7d": 3.085714285714286,
+    "rain_roll_sum_14d": 28.6,
+    "rain_roll_mean_14d": 2.042857142857143,
+    "rain_roll_sum_30d": 0.0,
+    "rain_roll_mean_30d": 0.0,
+    "inflow_roll_mean_3d": 0.0,
+    "inflow_roll_mean_7d": 0.0,
+    "inflow_roll_mean_14d": 0.0
+  },
+  "capacity_tmc": 30.0,
+  "model_file": "vanivilasa_sagar_lstm.pth"
+}
