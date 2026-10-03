@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Area, Brush, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { CalendarDays, ChevronLeft, ChevronRight, CircleHelp, Clock3, MapPin, Play, RotateCcw, Search, Square, Waves } from 'lucide-react';
@@ -35,71 +35,9 @@ type ChartPoint = {
   actual: number | null;
 };
 
-/* Sine-wave path used for the water surface. The pattern repeats every `period`
-   units, and the svg is 200% wide, so sliding it by -50% loops seamlessly. */
-const WAVE_W = 1600;
-const WAVE_H = 44;
-const wavePath = (amp: number, period: number, base: number) => {
-  let d = `M0 ${base}`;
-  for (let x = 0; x <= WAVE_W; x += 10) {
-    d += ` L${x} ${(base + Math.sin((x / period) * Math.PI * 2) * amp).toFixed(2)}`;
-  }
-  return `${d} L${WAVE_W} ${WAVE_H} L0 ${WAVE_H} Z`;
-};
-const WAVE_BACK = wavePath(7, 800, 22);
-const WAVE_FRONT = wavePath(5, 533.33, 24);
-
-/* ───────── ambient FX (deterministic so SSR and client match) ───────── */
-
-function seeded(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a += 0x6d2b79f5;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-const FX = (() => {
-  const r = seeded(11);
-  const f = (a: number, b: number) => a + r() * (b - a);
-  const n = (v: number, d = 2) => v.toFixed(d);
-  return {
-    rays: Array.from({ length: 7 }, () => ({
-      left: `${n(f(-4, 96), 1)}%`, w: `${n(f(70, 190), 0)}px`, rot: `${n(f(13, 25), 1)}deg`,
-      dur: `${n(f(7, 13), 1)}s`, delay: `-${n(f(0, 9), 1)}s`, o: n(f(0.45, 1)),
-    })),
-    snow: Array.from({ length: 48 }, () => ({
-      left: `${n(f(0, 100), 1)}%`, top: `${n(f(0, 100), 1)}%`, s: `${n(f(1.2, 3.6))}px`,
-      dur: `${n(f(14, 32), 1)}s`, delay: `-${n(f(0, 30), 1)}s`, dx: `${n(f(-30, 30), 0)}px`,
-    })),
-    bubbles: Array.from({ length: 16 }, () => ({
-      left: `${n(f(2, 98), 1)}%`, s: `${n(f(3, 10), 1)}px`, dur: `${n(f(7, 16), 1)}s`,
-      delay: `-${n(f(0, 16), 1)}s`, sway: `${n(f(6, 18), 0)}px`,
-    })),
-    fish: [
-      { top: '30%', dur: '46s', delay: '-8s', s: 1, rev: false },
-      { top: '52%', dur: '62s', delay: '-31s', s: 0.7, rev: true },
-      { top: '72%', dur: '54s', delay: '-20s', s: 0.55, rev: false },
-      { top: '42%', dur: '78s', delay: '-50s', s: 0.85, rev: true },
-    ],
-  };
-})();
-
-/* Tileable caustic network, drifted in two layers in CSS. */
-const CAUSTIC_SVG =
-  `<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'>` +
-  `<filter id='c' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'>` +
-  `<feTurbulence type='turbulence' baseFrequency='0.011 0.017' numOctaves='2' seed='4' stitchTiles='stitch'/>` +
-  `<feColorMatrix values='0 0 0 0 .70  0 0 0 0 .97  0 0 0 0 1  -22 0 0 0 3.4'/></filter>` +
-  `<rect width='100%' height='100%' filter='url(#c)'/></svg>`;
-const CAUSTIC_URI = `data:image/svg+xml;utf8,${encodeURIComponent(CAUSTIC_SVG)}`;
-
-const FISH_PATH = 'M0 8C9-2 22-2 30 8 22 18 9 18 0 8ZM30 8 42 0 39 8 42 16Z';
-
 /* ───────────────────────── styles ───────────────────────── */
+/* The water itself is drawn by the shared 3D scene (SceneCanvas) behind this page.
+   Only the gauge and predicted-level line live in the DOM. */
 
 const PAGE_CSS = `
 .prediction-page{
@@ -111,22 +49,7 @@ const PAGE_CSS = `
 .prediction-page p{color:var(--mut);margin:0;line-height:1.55}
 .prediction-page h2{margin:4px 0 2px;font-size:clamp(20px,1.7vw,26px);font-weight:600;letter-spacing:-.01em;color:var(--ink)}
 
-/* ── water field: fixed behind everything, height = reservoir fill ── */
-.water-field{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
-  background:
-    radial-gradient(120% 80% at 50% 0%,#0a2a34 0%,#051820 55%,#030f14 100%);}
-.water-body{position:absolute;left:0;right:0;bottom:0;
-  transition:height 1.6s cubic-bezier(.22,.8,.24,1);
-  background:linear-gradient(180deg,rgba(64,196,214,.50) 0%,rgba(16,104,126,.62) 30%,rgba(4,40,54,.88) 100%);}
-.water-body::after{content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(90deg,rgba(180,246,250,.05) 0 2px,transparent 2px 120px);
-  mask-image:linear-gradient(180deg,#000,transparent 70%);-webkit-mask-image:linear-gradient(180deg,#000,transparent 70%)}
-.water-wave{position:absolute;left:0;bottom:calc(100% - 1px);width:200%;height:${WAVE_H}px;will-change:transform}
-.water-wave.back{fill:rgba(64,196,214,.30);animation:pp-wave 16s linear infinite;bottom:calc(100% - 3px)}
-.water-wave.front{fill:rgba(64,196,214,.50);animation:pp-wave 10s linear infinite reverse}
-@keyframes pp-wave{to{transform:translateX(-50%)}}
-.water-surface-glow{position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,transparent,rgba(180,246,250,.8),transparent)}
-
+/* ── predicted level + gauge, drawn over the 3D water ── */
 .predicted-band,.predicted-line{position:absolute;left:0;right:0;transition:bottom 1.6s cubic-bezier(.22,.8,.24,1),height 1.6s cubic-bezier(.22,.8,.24,1)}
 .predicted-band{background:repeating-linear-gradient(135deg,rgba(210,163,255,.12) 0 8px,rgba(210,163,255,.04) 8px 16px)}
 .predicted-line{height:0;border-top:2px dashed rgba(210,163,255,.85)}
@@ -312,69 +235,6 @@ const PAGE_CSS = `
 .prediction-page .details-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--dim)}
 .prediction-page .details-footer strong{color:var(--ink);font-weight:500}
 
-/* ── ambient water FX (decorative only; never touches level geometry) ── */
-.fx-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.fx-sun{position:absolute;top:-18vmax;right:2%;width:46vmax;height:46vmax;border-radius:50%;
-  background:radial-gradient(circle,rgba(180,246,250,.34) 0%,rgba(93,225,238,.14) 28%,transparent 62%);
-  mix-blend-mode:screen;animation:pp-sun 9s ease-in-out infinite alternate}
-@keyframes pp-sun{from{opacity:.65;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}
-
-.fx-rays{mix-blend-mode:screen;
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.6) 55%,transparent 95%);
-  mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.6) 55%,transparent 95%)}
-.fx-ray{position:absolute;top:-25%;height:150%;transform-origin:50% 0;filter:blur(9px);will-change:transform,opacity;
-  background:linear-gradient(180deg,rgba(170,244,250,.26),rgba(93,225,238,.09) 50%,transparent 90%);
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 50%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 50%,transparent);
-  animation:pp-ray var(--d) ease-in-out var(--dl) infinite alternate}
-@keyframes pp-ray{
-  from{opacity:calc(var(--o)*.35);transform:rotate(calc(var(--r) - 2.2deg))}
-  to{opacity:var(--o);transform:rotate(calc(var(--r) + 2.2deg))}}
-
-.fx-snow span{position:absolute;border-radius:50%;background:rgba(190,248,252,.8);box-shadow:0 0 6px rgba(120,235,245,.5);
-  width:var(--s);height:var(--s);left:var(--l);top:var(--t);will-change:transform,opacity;
-  animation:pp-snow var(--d) linear var(--dl) infinite}
-@keyframes pp-snow{
-  0%{transform:translate3d(0,0,0);opacity:0}
-  15%{opacity:.8} 50%{opacity:.35} 85%{opacity:.75}
-  100%{transform:translate3d(var(--dx),130px,0);opacity:0}}
-
-.fx-vignette{position:absolute;inset:0;
-  background:radial-gradient(ellipse 85% 75% at 50% 42%,transparent 50%,rgba(1,7,10,.6) 100%)}
-
-/* inside the water body: clipped to the current fill, so they follow the level */
-.water-fx{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.fx-caustics{position:absolute;inset:0;mix-blend-mode:screen;background-image:url("${CAUSTIC_URI}");
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.12) 100%);
-  mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.12) 100%)}
-.fx-caustics.a{opacity:.34;background-size:360px 360px;animation:pp-caustic 42s linear infinite}
-.fx-caustics.b{opacity:.22;background-size:230px 230px;animation:pp-caustic 30s linear infinite reverse}
-@keyframes pp-caustic{to{background-position:360px 360px}}
-
-.fx-bubble{position:absolute;top:104%;width:var(--s);height:var(--s);left:var(--l);opacity:0;
-  animation:pp-rise var(--d) linear var(--dl) infinite}
-.fx-bubble i{display:block;width:100%;height:100%;border-radius:50%;
-  border:1px solid rgba(190,246,252,.55);
-  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.5),rgba(150,235,245,.08) 60%);
-  animation:pp-sway 3.2s ease-in-out infinite alternate}
-@keyframes pp-rise{0%{top:104%;opacity:0}8%{opacity:.9}85%{opacity:.7}100%{top:-2%;opacity:0}}
-@keyframes pp-sway{from{transform:translateX(calc(var(--sw)*-1))}to{transform:translateX(var(--sw))}}
-
-.fx-fish{position:absolute;left:0;width:42px;height:16px;opacity:.5;color:rgba(130,228,240,.75);
-  animation:pp-swim var(--d) linear var(--dl) infinite;will-change:transform}
-.fx-fish.rev{left:auto;right:0;animation-name:pp-swim-rev}
-.fx-fish svg{display:block;width:100%;height:100%;fill:currentColor;transform:scale(var(--fs));animation:pp-bob 4s ease-in-out infinite alternate}
-.fx-fish.rev svg{transform:scale(calc(var(--fs)*-1),var(--fs))}
-@keyframes pp-swim{from{transform:translateX(-80px)}to{transform:translateX(calc(100vw + 80px))}}
-@keyframes pp-swim-rev{from{transform:translateX(80px)}to{transform:translateX(calc(-100vw - 80px))}}
-@keyframes pp-bob{from{translate:0 -5px}to{translate:0 6px}}
-
-/* brighter, travelling highlight on the surface line */
-.water-surface-glow::after{content:'';position:absolute;top:-1px;height:4px;width:26%;left:-26%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);filter:blur(1.5px);
-  animation:pp-glint 7s ease-in-out infinite}
-@keyframes pp-glint{to{left:100%}}
-
 /* ── responsive ── */
 @media (max-width:1280px){
   .prediction-page .lower-grid{grid-template-columns:1fr}
@@ -388,7 +248,6 @@ const PAGE_CSS = `
 }
 @media (max-width:760px){
   .water-gauge{display:none}
-  .fx-snow span:nth-child(n+25),.fx-fish,.fx-ray:nth-child(n+5){display:none}
   .prediction-page .glass-card{padding:16px;border-radius:16px}
   .prediction-page .control-deck{grid-template-columns:1fr}
   .prediction-page .kpi-strip{grid-template-columns:1fr 1fr;gap:10px}
@@ -399,10 +258,8 @@ const PAGE_CSS = `
   .prediction-page .keyboard-note{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .water-wave,.status-pulse,.map-ping,.fx-sun,.fx-ray,.fx-snow span,.fx-caustics,
-  .fx-bubble,.fx-bubble i,.fx-fish,.fx-fish svg,.water-surface-glow::after{animation:none !important}
-  .fx-bubble,.fx-fish{display:none}
-  .water-body,.predicted-line,.predicted-band,.water-gauge .marker{transition:none !important}
+  .status-pulse,.map-ping{animation:none !important}
+  .predicted-line,.predicted-band,.water-gauge .marker{transition:none !important}
 }
 `;
 
@@ -430,6 +287,9 @@ export default function PredictionsPage() {
 
   const setSelectedDam = useAppStore((s) => s.setSelectedDam);
   const setStoreHorizon = useAppStore((s) => s.setHorizon);
+  // levels are pushed to the store so the shared 3D scene can draw the waterline
+  const setTankLevels = useAppStore((s) => s.setTankLevels);
+  const setStoreShowPredicted = useAppStore((s) => s.setShowPredicted);
 
   /* ── data ── */
   const damsQuery = useQuery({ queryKey: ['dams'], queryFn: ({ signal }) => fetchDams(signal) });
@@ -524,14 +384,11 @@ export default function PredictionsPage() {
       : undefined;
   const isHistoricalEstimate = forecast?.source === 'historical_estimate';
   const isDemoForecast = forecast?.source === 'demo';
-  const isBaselineForecast = forecast?.strategies?.[horizon] === 'recent_trend';
   const hasForecastBand = forecast?.predictions.some((point) => point.lower !== undefined && point.upper !== undefined) ?? false;
   const forecastMethodLabel = isHistoricalEstimate
     ? 'HISTORICAL ESTIMATE'
     : isDemoForecast
       ? 'DEMO FORECAST'
-      : isBaselineForecast
-        ? 'TREND BASELINE'
       : forecast?.strategies?.[horizon] === 'recent_trend'
         ? 'TREND BASELINE'
         : forecast?.strategies?.[horizon] === 'persistence'
@@ -665,8 +522,8 @@ export default function PredictionsPage() {
   const beats = metrics.length ? (metrics.filter((m) => Math.abs(m.predicted - m.actual) < Math.abs(m.persistence - m.actual)).length / metrics.length) * 100 : 0;
   const metricsSource = metrics.length && metrics.every((item) => item.source === metrics[0].source) ? metrics[0].source : 'mixed';
   const metricsSourceLabel = metrics.length === 0
-    ? isHistoricalEstimate ? 'ESTIMATE' : isDemoForecast ? 'DEMO' : isBaselineForecast ? 'TREND' : 'MODEL'
-    : metricsSource === 'historical_estimate' ? 'ESTIMATE' : metricsSource === 'demo' ? 'DEMO' : isBaselineForecast ? 'TREND' : metricsSource === 'mixed' ? 'MIXED FORECAST' : 'MODEL';
+    ? isHistoricalEstimate ? 'ESTIMATE' : isDemoForecast ? 'DEMO' : 'MODEL'
+    : metricsSource === 'historical_estimate' ? 'ESTIMATE' : metricsSource === 'demo' ? 'DEMO' : metricsSource === 'mixed' ? 'MIXED FORECAST' : 'MODEL';
   const errorPath = metrics.map((m, i) => `${i === 0 ? 'M' : 'L'} ${i * 18} ${34 - Math.min(29, Math.abs(m.predicted - m.actual) * 2)}`).join(' ');
 
   const filteredDams = dams.filter((item) => `${item.name} ${item.location} ${item.river}`.toLowerCase().includes(search.toLowerCase()));
@@ -685,13 +542,21 @@ export default function PredictionsPage() {
 
   const forecastReady = !!predictedPoint;
 
+  /* drive the shared 3D scene: waterline = current fill, or predicted fill when the toggle is on */
+  useEffect(() => {
+    if (!dam) return;
+    const on = showPredicted && forecastReady;
+    setTankLevels(currentFraction, predictedFraction, on);
+    setStoreShowPredicted(on);
+  }, [dam?.id, currentFraction, predictedFraction, showPredicted, forecastReady, setTankLevels, setStoreShowPredicted]);
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: PAGE_CSS }} />
 
-      {/* The whole page is the reservoir: water height = current fill of the active range. */}
+      {/* gauge + predicted line over the 3D water (the water itself is SceneCanvas) */}
       {dam && (
-        <WaterField
+        <WaterOverlay
           dam={dam}
           currentFraction={currentFraction}
           predictedFraction={predictedFraction}
@@ -759,7 +624,7 @@ export default function PredictionsPage() {
                   </div>
 
                   <div className="control">
-                  <div className="control-label"><span>Forecast horizon</span><strong>{forecastMethodLabel}</strong></div>
+                    <div className="control-label"><span>Forecast horizon</span><strong>{forecastMethodLabel}</strong></div>
                     <div className="segmented-control" role="group" aria-label="Forecast horizon">
                       {HORIZONS.map((item) => (
                         <button key={item} className={item === horizon ? 'selected' : ''} onClick={() => setHorizon(item)}>
@@ -795,7 +660,7 @@ export default function PredictionsPage() {
                   <span>{(currentFraction * 100).toFixed(0)}% of active range</span>
                 </div>
                 <div className="glass-card kpi">
-                  <span className="data-label">{isHistoricalEstimate ? "Estimated" : isDemoForecast ? "Demo forecast" : isBaselineForecast ? "Trend baseline" : "Predicted"} · {horizon}-day</span>
+                  <span className="data-label">{isHistoricalEstimate ? 'Estimated' : isDemoForecast ? 'Demo forecast' : 'Predicted'} · {horizon}-day</span>
                   <strong>{forecastReady ? <>{fmt(predictedLevel)} <small>{dam.unit}</small></> : '—'}</strong>
                   <span>
                     {forecastReady
@@ -879,7 +744,7 @@ export default function PredictionsPage() {
                   <div className="chart-foot">
                     <span><span className="risk-dot" /> Red zone begins above FRL</span>
                     <span>
-                      {forecastQuery.isFetching ? 'Updating forecast' : isHistoricalEstimate ? 'Historical estimate only; uncertainty range is not calibrated' : isDemoForecast ? 'Illustrative demo forecast and range' : isBaselineForecast ? 'Trend baseline range; it is not calibrated model confidence' : hasForecastBand ? 'Shaded band shows the confidence range, which widens with horizon' : 'Uncertainty band unavailable for this forecast'} <CircleHelp size={12} />
+                      {forecastQuery.isFetching ? 'Updating forecast' : isHistoricalEstimate ? 'Historical estimate only; uncertainty range is not calibrated' : isDemoForecast ? 'Illustrative demo forecast and range' : hasForecastBand ? 'Shaded band shows the confidence range, which widens with horizon' : 'Uncertainty band unavailable for this forecast'} <CircleHelp size={12} />
                     </span>
                   </div>
                 </section>
@@ -944,8 +809,8 @@ export default function PredictionsPage() {
                       <strong>{modelError !== undefined && actual ? `${((modelError / Math.max(0.01, Math.abs(actual.level))) * 100).toFixed(2)}%` : '—'}</strong>
                     </div>
                     <div className="result-stat">
-                      <span className="data-label">{isHistoricalEstimate ? 'Estimate vs. persistence' : isDemoForecast ? 'Demo vs. persistence' : isBaselineForecast ? 'Trend vs. persistence' : 'Vs. persistence'}</span>
-                      <strong>{modelError !== undefined && persistenceError !== undefined ? (modelError < persistenceError ? (isHistoricalEstimate ? 'Estimate wins' : isDemoForecast ? 'Demo wins' : isBaselineForecast ? 'Trend wins' : 'Model wins') : 'Baseline wins') : '—'}</strong>
+                      <span className="data-label">{isHistoricalEstimate ? 'Estimate vs. persistence' : isDemoForecast ? 'Demo vs. persistence' : 'Vs. persistence'}</span>
+                      <strong>{modelError !== undefined && persistenceError !== undefined ? (modelError < persistenceError ? (isHistoricalEstimate ? 'Estimate wins' : isDemoForecast ? 'Demo wins' : 'Model wins') : 'Baseline wins') : '—'}</strong>
                     </div>
                   </div>
 
@@ -969,9 +834,9 @@ export default function PredictionsPage() {
                 <section className="glass-card confidence-card">
                   <div className="card-head">
                     <div>
-                      <Eyebrow>{isHistoricalEstimate ? 'HISTORICAL ESTIMATE & PERSISTENCE' : isDemoForecast ? 'DEMO FORECAST & PERSISTENCE' : isBaselineForecast ? 'TREND BASELINE & PERSISTENCE' : 'MODEL CONFIDENCE & PERSISTENCE'}</Eyebrow>
-                      <h2>{isHistoricalEstimate ? 'How does this estimate compare?' : isDemoForecast ? 'Illustrative demo forecast' : isBaselineForecast ? 'How does the trend compare?' : 'How does the model compare?'}</h2>
-                      <p>{isHistoricalEstimate ? 'Historical estimates use a simple frontend heuristic; confidence is not calibrated.' : isBaselineForecast ? 'Model artifacts are unavailable, so this uses a discounted recent trend.' : 'Persistence assumes the last observed level holds steady.'}</p>
+                      <Eyebrow>{isHistoricalEstimate ? 'HISTORICAL ESTIMATE & PERSISTENCE' : isDemoForecast ? 'DEMO FORECAST & PERSISTENCE' : 'MODEL CONFIDENCE & PERSISTENCE'}</Eyebrow>
+                      <h2>{isHistoricalEstimate ? 'How does this estimate compare?' : isDemoForecast ? 'Illustrative demo forecast' : 'How does the model compare?'}</h2>
+                      <p>{isHistoricalEstimate ? 'Historical estimates use a simple frontend heuristic; confidence is not calibrated.' : 'Persistence assumes the last observed level holds steady.'}</p>
                     </div>
                     <span className="tag">NAÏVE BASELINE</span>
                   </div>
@@ -999,7 +864,7 @@ export default function PredictionsPage() {
                             <strong>{confidence ? `${Math.round(confidence * 100)}%` : '—'}</strong>
                           </span>
                           <span className="value-pair">
-                            <span>{f?.source === "historical_estimate" ? "Estimate" : f?.source === "demo" ? "Demo" : f?.strategies?.[h] === "recent_trend" ? "Trend" : "Model"} <strong>{prediction !== undefined ? `${fmt(prediction)} ${dam.unit}` : '—'}</strong></span>
+                            <span>{f?.source === 'historical_estimate' ? 'Estimate' : f?.source === 'demo' ? 'Demo' : 'Model'} <strong>{prediction !== undefined ? `${fmt(prediction)} ${dam.unit}` : '—'}</strong></span>
                             <span>Persistence <strong>{pers !== undefined ? `${fmt(pers)} ${dam.unit}` : '—'}</strong></span>
                           </span>
                           <span className={`skill-note ${skill !== undefined && skill > 0 ? 'positive' : ''}`}>
@@ -1020,8 +885,6 @@ export default function PredictionsPage() {
                   ? 'This backdated forecast is a synthetic estimate, not a model backtest. Its confidence range is suppressed because it is not calibrated.'
                   : isDemoForecast
                     ? 'Demo data and forecasts are illustrative and do not come from the trained reservoir model.'
-                    : isBaselineForecast
-                      ? 'Model artifacts are unavailable; the backend is showing a discounted recent-trend baseline from validated reservoir observations.'
                     : 'The backend applies the saved persistence, recent-trend, or Delta-LSTM strategy for each horizon.'}
               </p>
             </div>
@@ -1032,9 +895,12 @@ export default function PredictionsPage() {
   );
 }
 
-/* ───────────────────────── water field ───────────────────────── */
+/* ───────────────────── gauge + predicted line ───────────────────── */
+/* The water is rendered by SceneCanvas. This overlay only draws the
+   level gauge and the dashed predicted line, using the same
+   "fraction of viewport height" mapping as the 3D waterline. */
 
-function WaterField({
+function WaterOverlay({
   dam, currentFraction, predictedFraction, currentLevel, predictedLevel, horizon, showPredicted,
 }: {
   dam: Dam;
@@ -1045,55 +911,12 @@ function WaterField({
   horizon: Horizon;
   showPredicted: boolean;
 }) {
-  // Keep a thin sliver of water visible even at the dead-pool level.
   const level = Math.max(0.015, currentFraction) * 100;
   const predicted = Math.max(0.015, predictedFraction) * 100;
   const ticks = [0, 25, 50, 75, 100];
-  // The water rises or falls to the predicted level when "Show predicted level" is on.
-  const surface = showPredicted ? predicted : level;
 
   return (
-    <div className="water-field" aria-hidden="true">
-      <div className="fx-layer"><div className="fx-sun" /></div>
-
-      <div className="water-body" style={{ height: `${surface}%` }}>
-        <svg className="water-wave back" viewBox={`0 0 ${WAVE_W} ${WAVE_H}`} preserveAspectRatio="none"><path d={WAVE_BACK} /></svg>
-        <svg className="water-wave front" viewBox={`0 0 ${WAVE_W} ${WAVE_H}`} preserveAspectRatio="none"><path d={WAVE_FRONT} /></svg>
-        <div className="water-surface-glow" />
-
-        {/* effects clipped to the water, so they scale with the level */}
-        <div className="water-fx">
-          <div className="fx-caustics a" />
-          <div className="fx-caustics b" />
-          {FX.fish.map((f, i) => (
-            <div key={i} className={`fx-fish ${f.rev ? 'rev' : ''}`}
-              style={{ top: f.top, '--d': f.dur, '--dl': f.delay, '--fs': f.s } as CSSProperties}>
-              <svg viewBox="0 0 42 16"><path d={FISH_PATH} /></svg>
-            </div>
-          ))}
-          {FX.bubbles.map((b, i) => (
-            <span key={i} className="fx-bubble"
-              style={{ '--l': b.left, '--s': b.s, '--d': b.dur, '--dl': b.delay, '--sw': b.sway } as CSSProperties}>
-              <i />
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* light rays, marine snow and vignette */}
-      <div className="fx-layer fx-rays">
-        {FX.rays.map((r, i) => (
-          <div key={i} className="fx-ray"
-            style={{ left: r.left, width: r.w, '--r': r.rot, '--d': r.dur, '--dl': r.delay, '--o': r.o } as CSSProperties} />
-        ))}
-      </div>
-      <div className="fx-layer fx-snow">
-        {FX.snow.map((s, i) => (
-          <span key={i} style={{ '--l': s.left, '--t': s.top, '--s': s.s, '--d': s.dur, '--dl': s.delay, '--dx': s.dx } as CSSProperties} />
-        ))}
-      </div>
-      <div className="fx-layer fx-vignette" />
-
+    <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
       {showPredicted && (
         <>
           <div className="predicted-band" style={{ bottom: `${Math.min(level, predicted)}%`, height: `${Math.abs(predicted - level)}%` }} />
@@ -1224,5 +1047,3 @@ function DamDetails({ dam, currentLevel, currentDate }: { dam: Dam; currentLevel
     </section>
   );
 }
-
-

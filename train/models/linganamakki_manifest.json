@@ -52,10 +52,10 @@
       "val_end": "2025-05-22",
       "val_coverage_days": 54,
       "best_epochs": {
-        "t+1": 77,
+        "t+1": 3,
         "t+7": 153,
-        "t+14": 30,
-        "t+30": 30
+        "t+14": 26,
+        "t+30": 37
       }
     }
   ],
@@ -345,6 +345,24 @@
       "seasonal_naive": 33.87807
     }
   },
+  "seed_runs": [
+    {
+      "run": 0,
+      "seed": 8178,
+      "oof_score_pct": 16.021
+    },
+    {
+      "run": 1,
+      "seed": 16097,
+      "oof_score_pct": 16.021
+    },
+    {
+      "run": 2,
+      "seed": 24016,
+      "oof_score_pct": 16.021
+    }
+  ],
+  "selected_seed_run": 0,
   "feature_columns": [
     "Percentage Full",
     "Reservoir Level (ft)",

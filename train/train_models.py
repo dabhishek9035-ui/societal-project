@@ -26,6 +26,9 @@ What changed vs v2 (why the learned model was never getting picked):
      honest.
   6. Learned model is only a candidate when OOF history spans >= 1 year.
   7. Input noise regularises the long-horizon heads; deploy epochs floor is 1.
+  8. N_SEEDS independent runs per dam; the deployed one is the seed with the best
+     out-of-fold score (mean skill of the selected strategies vs persistence). A bad
+     init can no longer reach production, and the test set never picks the seed.
 The final 15% is reporting-only and never touches selection or training.
 """
 
@@ -100,15 +103,19 @@ SHRINK_GRID = (1.0, 0.75, 0.5, 0.25)
 MIN_MODEL_OOF_DAYS = 365
 
 # --- Optimisation -----------------------------------------------------------
-EPOCHS = 400
+EPOCHS = 160
 BATCH_SIZE = 64
-EARLY_STOPPING_PATIENCE = 30
+EARLY_STOPPING_PATIENCE = 18
 LEARNING_RATE = 5e-4
 WEIGHT_DECAY = 1e-4
 # Gaussian noise on standardized inputs, training only (no backend change). Long-horizon
 # heads were peaking at 1-3 epochs, i.e. memorising monsoon years. Try 0.1 if that persists.
 INPUT_NOISE_STD = 0.05
 SEED = int(os.environ.get("SEED", 42))  # e.g. SEED=7 python train/train_models.py
+# Train this many independent seeds per dam and keep the one with the best OOF score
+# (dev data only, never the test set). N_SEEDS=1 reproduces single-seed behaviour.
+N_SEEDS = max(1, int(os.environ.get("N_SEEDS", 3)))
+SEED_STRIDE = 7919  # prime gap between per-run seeds so fold/deploy offsets never collide
 
 EVALUATION_FIELDS = (
     "dam_name", "horizon_days", "rmse_tmc", "mae_tmc", "nse", "r2",
@@ -621,18 +628,24 @@ def write_evaluation_csv(summary: dict[str, Any]) -> Path:
 # =============================================================================
 # Per-dam pipeline
 # =============================================================================
-def train_dam_model(feature_path: str | Path, sequence_length: int = SEQUENCE_LENGTH) -> dict[str, Any]:
-    feature_path = Path(feature_path)
-    dam_id, frame, feature_columns = _prepare_dam(feature_path, sequence_length)
-    seed = _seed_for_dam(dam_id)
+def _fit_one_seed(
+    dam_id: str,
+    frame: pd.DataFrame,
+    feature_columns: list[str],
+    seg: dict[str, Any],
+    warmup_rows: int,
+    seed: int,
+    sequence_length: int,
+) -> dict[str, Any]:
+    """CV -> strategy selection -> deployment refit -> test report for ONE seed.
+
+    Nothing is written to disk here; ``train_dam_model`` picks a seed and saves it.
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
 
-    row_count = len(frame)
-    warmup_rows = min(max(30, sequence_length), max(0, row_count - sequence_length))
-    seg = _build_segments(frame, sequence_length, warmup_rows)
     folds, deploy_origins, test_origins = seg["folds"], seg["deployment"], seg["test"]
     dev_end = seg["dev_end"]
 
@@ -805,7 +818,57 @@ def train_dam_model(feature_path: str | Path, sequence_length: int = SEQUENCE_LE
         "test_candidate_mae_tmc": test_candidate_mae,
     }
 
-    # ---- 5) Artifacts (names/paths are the backend contract) -----------------
+    return {
+        "report": report, "model": model, "scaler_x": scaler_x, "scaler_y": scaler_y,
+        "fill_values": fill_values, "capacity": capacity, "seed": seed,
+    }
+
+
+def _oof_score_pct(horizon_strategy: dict[str, dict[str, Any]]) -> float:
+    """Mean over horizons of the selected strategy's OOF MAE skill vs persistence (%).
+
+    Uses dev-period OOF numbers only. A seed whose model fails the gate falls back to
+    trend/persistence and scores lower, so weak inits lose without touching test.
+    """
+    skills = []
+    for horizon in HORIZONS:
+        entry = horizon_strategy[f"t+{horizon}"]
+        maes = entry.get("validation_mae_tmc")
+        if not maes or maes["persistence"] <= 1e-12:
+            continue
+        skills.append((1.0 - maes[entry["selected"]] / maes["persistence"]) * 100.0)
+    return float(np.mean(skills)) if skills else 0.0
+
+
+def train_dam_model(feature_path: str | Path, sequence_length: int = SEQUENCE_LENGTH) -> dict[str, Any]:
+    feature_path = Path(feature_path)
+    dam_id, frame, feature_columns = _prepare_dam(feature_path, sequence_length)
+    row_count = len(frame)
+    warmup_rows = min(max(30, sequence_length), max(0, row_count - sequence_length))
+    seg = _build_segments(frame, sequence_length, warmup_rows)  # seed-independent, build once
+    base_seed = _seed_for_dam(dam_id)
+
+    runs: list[dict[str, Any]] = []
+    for run in range(N_SEEDS):
+        fit = _fit_one_seed(dam_id, frame, feature_columns, seg, warmup_rows,
+                            base_seed + SEED_STRIDE * run, sequence_length)
+        fit["oof_score_pct"] = _oof_score_pct(fit["report"]["horizon_strategy"])
+        runs.append(fit)
+        print(f"  [{dam_id}] seed run {run + 1}/{N_SEEDS}: OOF score {fit['oof_score_pct']:.2f}%")
+        if not seg["folds"]:
+            break  # no CV signal, so extra seeds could not be told apart
+    # Highest OOF score wins; ties go to the earliest run.
+    best_index = max(range(len(runs)), key=lambda i: (runs[i]["oof_score_pct"], -i))
+    best = runs[best_index]
+    report, model = best["report"], best["model"]
+    scaler_x, scaler_y = best["scaler_x"], best["scaler_y"]
+    report["seed_runs"] = [
+        {"run": i, "seed": r["seed"], "oof_score_pct": round(r["oof_score_pct"], 3)}
+        for i, r in enumerate(runs)
+    ]
+    report["selected_seed_run"] = best_index
+
+    # ---- Artifacts (names/paths are the backend contract) -------------------
     models_dir = Path(MODELS_DIR)
     models_dir.mkdir(parents=True, exist_ok=True)
     model_path = models_dir / f"{dam_id}_lstm.pth"
@@ -816,26 +879,29 @@ def train_dam_model(feature_path: str | Path, sequence_length: int = SEQUENCE_LE
         **report,
         "feature_columns": feature_columns,
         "horizons_days": list(HORIZONS),
-        "missing_feature_fill_values": dict(zip(feature_columns, fill_values.tolist())),
-        "capacity_tmc": capacity,
+        "missing_feature_fill_values": dict(zip(feature_columns, best["fill_values"].tolist())),
+        "capacity_tmc": best["capacity"],
         "model_file": model_path.name,
     }
     (models_dir / f"{dam_id}_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
+    horizon_strategy = report["horizon_strategy"]
+    shrink = report["model_shrink_by_horizon"]
     print(
-        f"{dam_id}: {len(deploy_origins)} deploy-train, {len(folds)} CV folds "
-        f"({val_origin_count} OOF origins), {len(test_origins)} test origins; epochs {deploy_epochs}"
+        f"{dam_id}: kept seed run {best_index + 1}/{len(runs)}; {report['deployment_train_origins']} "
+        f"deploy-train, {len(report['cv_folds'])} CV folds ({report['validation_origins']} OOF origins), "
+        f"{report['test_origins']} test origins; epochs {report['final_fit_epochs_by_horizon']}"
     )
-    for index, horizon in enumerate(HORIZONS):
+    for horizon in HORIZONS:
         key = f"t+{horizon}"
-        cands = test_candidate_mae[key]
         print(
-            f"  {key}: {horizon_strategy[key]['selected']} (shrink {shrink[index]}); "
-            f"test MAE {test_storage_metrics[key]['mae_tmc']:.3f} TMC vs persistence "
-            f"{persistence_metrics[key]['mae_tmc']:.3f}; skill {test_skill[key]['mae_skill_pct']}% "
-            f"| shrunk model {cands['model']:.3f}"
+            f"  {key}: {horizon_strategy[key]['selected']} (shrink {shrink[key]}); "
+            f"test MAE {report['test_storage_metrics'][key]['mae_tmc']:.3f} TMC vs persistence "
+            f"{report['persistence_baseline'][key]['mae_tmc']:.3f}; "
+            f"skill {report['test_skill_vs_persistence'][key]['mae_skill_pct']}% "
+            f"| shrunk model {report['test_candidate_mae_tmc'][key]['model']:.3f}"
         )
-    for diagnostic in test_diagnostics:
+    for diagnostic in report["test_diagnostics"]:
         print(f"  REVIEW: {diagnostic}")
     return report
 
@@ -898,6 +964,7 @@ def main() -> None:
             "predictions; per horizon compare persistence, shrunk LSTM, recent trend, seasonal naive; "
             f"a candidate replaces persistence only with >={MIN_SKILL_PCT}% pooled MAE skill, wins in "
             "at least 2/3 of folds, and a block-bootstrap 5th-percentile skill > 0. "
+            "With N_SEEDS>1, the seed with the best out-of-fold score is deployed. "
             "The final 15% is reporting-only."
         ),
         "label_policy": (

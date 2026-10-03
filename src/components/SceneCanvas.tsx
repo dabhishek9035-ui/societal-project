@@ -5,19 +5,14 @@ import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import {
   AdditiveBlending,
   BackSide,
-  BoxGeometry,
   BufferAttribute,
   BufferGeometry,
   Color,
   DoubleSide,
-  EdgesGeometry,
   Group,
   InstancedBufferAttribute,
   InstancedMesh,
-  LineBasicMaterial,
-  LineSegments,
   Mesh,
-  MeshBasicMaterial,
   Object3D,
   PlaneGeometry,
   Points,
@@ -45,6 +40,19 @@ const TINTS: [number, number, number][] = [
   [0.62, 0.92, 0.92],
   [1.0, 0.62, 0.28], // amber accent fish
 ];
+
+/* Reservoir mode (predictions page): the water level is a screen-space waterline.
+   WATER.f  = animated fill, as a fraction of viewport height (matches the DOM gauge)
+   WATER.on = 0..1 blend between "home/dams ceiling" and "reservoir waterline" */
+const WATER = { f: 0.5, on: 0 };
+const TAN_HALF = Math.tan((52 / 2) * (Math.PI / 180));
+const RES_CAM = { y: 0.5, z: 12 };
+/** World height of the waterline at depth z, so rays/bubbles/fish respect the screen-space waterline. */
+const surfaceAt = (z: number) => {
+  if (WATER.on < 0.001) return SURFACE_Y;
+  const yw = RES_CAM.y + (WATER.f - 0.5) * 2 * TAN_HALF * (RES_CAM.z - z);
+  return SURFACE_Y + (Math.max(-7.5, yw) - SURFACE_Y) * WATER.on;
+};
 
 function seeded(seed: number) {
   let a = seed >>> 0;
@@ -379,93 +387,35 @@ const FISH_FRAG = `
   }
 `;
 
-/* ─────────── tank ─────────── */
-const TANK_SURF_VERT = `
-  uniform float uTime;
-  varying vec3 vWorld; varying vec3 vN; varying float vH;
-  ${WAVES}
+/* ─────────── reservoir waterline (screen-space) ─────────── */
+const MASK_VERT = `
+  varying vec2 vUv;
   void main(){
-    vec3 p = position;
-    vec3 w = waves(p.xz, uTime, 2.0, 0.35);
-    p.y += w.x;
-    vN = normalize(vec3(-w.y, 1.0, -w.z));
-    vH = w.x;
-    vec4 wp = modelMatrix * vec4(p, 1.0);
-    vWorld = wp.xyz;
-    gl_Position = projectionMatrix * viewMatrix * wp;
+    vUv = uv;
+    gl_Position = vec4(position.xy, 0.0, 1.0);
   }
 `;
-const TANK_SURF_FRAG = `
-  uniform float uOpacity; uniform vec3 uSunDir;
-  varying vec3 vWorld; varying vec3 vN; varying float vH;
+const MASK_FRAG = `
+  varying vec2 vUv;
+  uniform float uTime; uniform float uLevel; uniform float uOn; uniform float uAspect;
   void main(){
-    vec3 N = normalize(vN);
-    vec3 V = normalize(cameraPosition - vWorld);
-    float ndv = max(dot(N, V), 0.0);
-    float fres = pow(1.0 - ndv, 3.0);
-    vec3 Rf = reflect(-V, N);
-    vec3 sky = mix(vec3(0.03, 0.16, 0.21), vec3(0.45, 0.92, 1.0), smoothstep(-0.1, 0.9, Rf.y));
-    float spec = pow(max(dot(Rf, uSunDir), 0.0), 70.0) * 1.6;
-    vec3 body = vec3(0.01, 0.20, 0.26);
-    vec3 col = mix(body, sky, 0.12 + fres * 0.75) + vec3(0.9, 1.0, 1.0) * spec;
-    col += vec3(0.1, 0.5, 0.6) * smoothstep(0.02, 0.06, vH) * 0.5;
-    gl_FragColor = vec4(col, uOpacity * 0.92);
-    ${FINISH}
-  }
-`;
-const TANK_WATER_VERT = `
-  varying vec3 vWorld; varying vec3 vNormal; varying vec3 vLocal;
-  void main(){
-    vLocal = position;
-    vec4 world = modelMatrix * vec4(position, 1.0);
-    vWorld = world.xyz;
-    vNormal = normalize(normalMatrix * normal);
-    gl_Position = projectionMatrix * viewMatrix * world;
-  }
-`;
-const TANK_WATER_FRAG = `
-  varying vec3 vWorld; varying vec3 vNormal; varying vec3 vLocal;
-  uniform float uOpacity; uniform float uTime;
-  void main(){
-    vec3 viewDir = normalize(cameraPosition - vWorld);
-    float depth = smoothstep(-2.1, 2.1, vLocal.y);
-    float fresnel = pow(1.0 - abs(dot(normalize(vNormal), viewDir)), 2.3);
-    float caustic = pow(max(0.0, sin(vLocal.x * 3.2 + sin(vLocal.z * 4.0 + uTime * 0.4) * 1.3) * sin(vLocal.z * 3.5 - uTime * 0.32)), 8.0);
-    float shaft = pow(max(0.0, sin(vLocal.x * 4.6 + sin(vLocal.y * 1.3 + uTime * 0.3) * 0.9 - uTime * 0.15)), 6.0) * depth * depth;
-    vec3 deep = vec3(0.002, 0.028, 0.039);
-    vec3 teal = vec3(0.012, 0.31, 0.38);
-    vec3 color = mix(deep, teal, depth * 0.92);
-    color += vec3(0.035, 0.27, 0.30) * caustic * 0.42;
-    color += vec3(0.05, 0.30, 0.36) * shaft * 0.35;
-    color = mix(color, vec3(0.25, 0.86, 0.91), fresnel * 0.42);
-    gl_FragColor = vec4(color, uOpacity * (0.76 + fresnel * 0.2));
-    ${FINISH}
-  }
-`;
-const TANK_GLASS_VERT = `
-  varying vec3 vN; varying vec3 vV;
-  void main(){
-    vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    vN = normalize(normalMatrix * normal);
-    vV = -mv.xyz;
-    gl_Position = projectionMatrix * mv;
-  }
-`;
-const TANK_GLASS_FRAG = `
-  varying vec3 vN; varying vec3 vV; uniform float uOpacity;
-  void main(){
-    float ndv = clamp(abs(dot(normalize(vN), normalize(vV))), 0.0, 1.0);
-    float rim = pow(1.0 - ndv, 3.0);
-    gl_FragColor = vec4(vec3(0.45, 0.88, 0.95), (0.03 + rim * 0.22) * uOpacity);
-  }
-`;
-const FRL_FRAG = `
-  varying vec2 vUv; uniform float uTime; uniform float uOpacity;
-  void main(){
-    float dash = step(0.34, fract(vUv.x * 28.0 - uTime * 0.24));
-    float edge = 1.0 - smoothstep(0.15, 0.5, abs(vUv.y - 0.5));
-    float pulse = 0.72 + 0.28 * sin(uTime * 1.7);
-    gl_FragColor = vec4(0.43, 0.91, 1.0, dash * edge * pulse * 0.9 * uOpacity);
+    float x = vUv.x * uAspect;
+    float y = vUv.y;
+    float w = sin(x * 3.1 + uTime * 0.55) * 0.0055
+            + sin(x * 7.3 - uTime * 0.80) * 0.0030
+            + sin(x * 17.0 + uTime * 1.50) * 0.0013;
+    float d = y - (uLevel + w);                 // > 0 above the water
+    float air = smoothstep(-0.0006, 0.0010, d);
+    float q = d / 0.0022;
+    float line = exp(-q * q);
+    float sub = exp(-max(-d, 0.0) / 0.07) * (1.0 - air);
+    float gx = (fract(uTime * 0.045) * 1.5 - 0.25) * uAspect;
+    float gq = (x - gx) / 0.35;
+    float glint = exp(-gq * gq);
+    vec3 add = vec3(0.55, 0.95, 1.0) * line * (0.55 + 0.9 * glint)
+             + vec3(0.06, 0.34, 0.42) * sub * (0.55 + 0.4 * glint);
+    vec3 airCol = vec3(0.0, 0.010, 0.016) + vec3(0.02, 0.12, 0.15) * exp(-max(d, 0.0) / 0.05) * 0.6;
+    gl_FragColor = vec4((airCol * air + add) * uOn, air * uOn);
   }
 `;
 
@@ -597,6 +547,7 @@ function RayShafts({ presence, reducedMotion, count }: { presence: Presence; red
       if (!r) return;
       r.material.uniforms.uTime.value = t;
       r.material.uniforms.uOpacity.value = p;
+      r.material.uniforms.uSurfaceY.value = surfaceAt(r.z);
       child.rotation.z = r.tilt + Math.sin(t * 0.16 + r.phase) * 0.02;
     });
   });
@@ -758,11 +709,11 @@ function ScrollBubbles({ amount, presence }: { amount: number; presence: Presenc
     velocity.current += (target - velocity.current) * (1 - Math.exp(-dt * 12));
     const moving = velocity.current > 0.008; // bubbles only travel while the page is scrolling
     const t = clock.elapsedTime;
-    const popTop = SURFACE_Y - 0.05;
     material.uniforms.uOpacity.value = p;
 
     for (let i = 0; i < bubbles.length; i++) {
       const b = bubbles[i];
+      const popTop = surfaceAt(b.z) - 0.05;
       if (moving) {
         b.y += dt * b.speed * (0.3 + velocity.current * 3.1);
         if (b.y > popTop) {
@@ -874,8 +825,10 @@ function FishSchool({ amount, presence, reducedMotion }: { amount: number; prese
       _steer.z += Math.sin(t * 0.23 * motion + f.phase * 2) * 0.12 * motion;
       // soft bounds
       if (Math.abs(f.p.x) > 12) _steer.x -= Math.sign(f.p.x) * 1.6;
-      if (f.p.y > 3.2) _steer.y -= 1.2;
-      if (f.p.y < -4.8) _steer.y += 1.2;
+      const topLimit = Math.min(3.2, surfaceAt(f.p.z) - 0.7);
+      const bottomLimit = Math.max(-7.2, Math.min(-4.8, topLimit - 1.2));
+      if (f.p.y > topLimit) _steer.y -= 1.6 + (f.p.y - topLimit);
+      if (f.p.y < bottomLimit) _steer.y += 1.2;
       if (f.p.z > -3) _steer.z -= 1.4;
       if (f.p.z < -17) _steer.z += 1.4;
       // startle when the page is being scrolled hard
@@ -903,175 +856,36 @@ function FishSchool({ amount, presence, reducedMotion }: { amount: number; prese
 }
 
 /* ════════════════════════════════════════════════════════════════
-   TANK (predictions page)
+   RESERVOIR WATERLINE (predictions page)
+   Everything above the waterline is painted dark; the line itself shimmers.
+   The underwater world behind it is the exact same scene as Home / Dams.
    ════════════════════════════════════════════════════════════════ */
-function Tank({ presence }: { presence: Presence }) {
-  const group = useRef<Group>(null);
-  const water = useRef<Mesh>(null);
-  const ghost = useRef<Mesh>(null);
-  const current = useRef(0.7);
-  const waterGeometry = useMemo(() => new BoxGeometry(8.64, 4.2, 1.5), []);
-  const waterMaterial = useMemo(
-    () =>
-      new ShaderMaterial({
-        vertexShader: TANK_WATER_VERT,
-        fragmentShader: TANK_WATER_FRAG,
-        uniforms: { uOpacity: { value: 0.8 }, uTime: { value: 0 } },
-        transparent: true,
-        side: DoubleSide,
-        depthWrite: false,
-      }),
-    [],
-  );
-  const glassGeometry = useMemo(() => new BoxGeometry(8.8, 4.5, 1.65), []);
-  const glassMaterial = useMemo(
-    () =>
-      new ShaderMaterial({
-        vertexShader: TANK_GLASS_VERT,
-        fragmentShader: TANK_GLASS_FRAG,
-        uniforms: { uOpacity: { value: 1 } },
-        transparent: true,
-        side: DoubleSide,
-        depthWrite: false,
-      }),
-    [],
-  );
-  const ghostMaterial = useMemo(() => new MeshBasicMaterial({ color: '#9df7ff', transparent: true, opacity: 0, wireframe: true, side: DoubleSide }), []);
-  const ghostGeometry = useMemo(() => {
-    const g = new PlaneGeometry(8.7, 1.5);
-    g.rotateX(-Math.PI / 2);
-    return g;
-  }, []);
-  useEffect(
-    () => () => {
-      waterGeometry.dispose(); waterMaterial.dispose();
-      glassGeometry.dispose(); glassMaterial.dispose();
-      ghostGeometry.dispose(); ghostMaterial.dispose();
-    },
-    [waterGeometry, waterMaterial, glassGeometry, glassMaterial, ghostGeometry, ghostMaterial],
-  );
-
-  useFrame(({ clock }, delta) => {
-    const g = group.current;
-    if (!g) return;
-    const p = presence.current;
-    g.visible = p > 0.01;
-    if (!g.visible) return;
-    const dt = Math.min(delta, 0.05);
-    const s = useAppStore.getState();
-    const target = s.showPredicted ? s.predictedFraction : s.tankFraction;
-    current.current += (target - current.current) * (1 - Math.exp(-dt * 2.4));
-    const h = 4.2 * Math.max(0.02, Math.min(0.98, current.current));
-    if (water.current) {
-      water.current.scale.y = h / 4.2;
-      water.current.position.y = -2.08 + h / 2;
-    }
-    waterMaterial.uniforms.uOpacity.value = 0.84 * p;
-    waterMaterial.uniforms.uTime.value = clock.elapsedTime;
-    glassMaterial.uniforms.uOpacity.value = p;
-    if (ghost.current) {
-      const gf = s.showPredicted ? s.tankFraction : s.predictedFraction;
-      ghost.current.position.y = -2.08 + 4.2 * Math.max(0.02, Math.min(0.98, gf));
-      const want = Math.abs(s.predictedFraction - s.tankFraction) > 0.002 ? 0.56 : 0;
-      ghostMaterial.opacity += (want * p - ghostMaterial.opacity) * Math.min(1, dt * 1.6);
-    }
-    g.rotation.y = Math.sin(clock.elapsedTime * 0.12) * 0.025;
-  });
-
-  return (
-    <group ref={group} position={[3.6, 0.25, -2]}>
-      <mesh geometry={glassGeometry} material={glassMaterial} renderOrder={8} dispose={null} />
-      <TankFrame presence={presence} />
-      <TankScaleTicks presence={presence} />
-      <CausticFloor position={[0, -2.03, 0]} size={[8.6, 1.46]} tiling={0.55} fadeRate={0} strength={0.5} presence={presence} reducedMotion={false} />
-      <mesh ref={water} position={[0, -0.55, 0]} geometry={waterGeometry} material={waterMaterial} renderOrder={2} dispose={null} />
-      <TankSurface presence={presence} fractionRef={current} />
-      <mesh ref={ghost} position={[0, 1, 0]} geometry={ghostGeometry} material={ghostMaterial} dispose={null} />
-      <TankFRLMarker presence={presence} />
-    </group>
-  );
-}
-
-function TankFRLMarker({ presence }: { presence: Presence }) {
-  const geometry = useMemo(() => new PlaneGeometry(8.9, 0.055), []);
-  const material = useMemo(
-    () =>
-      new ShaderMaterial({
-        vertexShader: PASS_VERT,
-        fragmentShader: FRL_FRAG,
-        uniforms: { uTime: { value: 0 }, uOpacity: { value: 1 } },
-        transparent: true,
-        depthWrite: false,
-        blending: AdditiveBlending,
-      }),
-    [],
-  );
-  useFrame(({ clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
-    material.uniforms.uOpacity.value = presence.current;
-  });
-  useEffect(() => () => { geometry.dispose(); material.dispose(); }, [geometry, material]);
-  return <mesh position={[0, 2.15, 0.84]} geometry={geometry} material={material} renderOrder={9} dispose={null} />;
-}
-
-function TankSurface({ presence, fractionRef }: { presence: Presence; fractionRef: MutableRefObject<number> }) {
+function ReservoirMask({ presence, reducedMotion }: { presence: Presence; reducedMotion: boolean }) {
   const mesh = useRef<Mesh>(null);
-  const geometry = useMemo(() => {
-    const g = new PlaneGeometry(8.64, 1.5, 160, 40);
-    g.rotateX(-Math.PI / 2);
-    return g;
-  }, []);
+  const geometry = useMemo(() => new PlaneGeometry(2, 2), []);
   const material = useMemo(
     () =>
       new ShaderMaterial({
-        vertexShader: TANK_SURF_VERT,
-        fragmentShader: TANK_SURF_FRAG,
-        uniforms: { uTime: { value: 0 }, uOpacity: { value: 0.9 }, uSunDir: { value: SUN_DIR } },
+        vertexShader: MASK_VERT,
+        fragmentShader: MASK_FRAG,
+        uniforms: { uTime: { value: 0 }, uLevel: { value: 0.5 }, uOn: { value: 0 }, uAspect: { value: 1.8 } },
         transparent: true,
-        side: DoubleSide,
+        premultipliedAlpha: true,
+        depthTest: false,
         depthWrite: false,
       }),
     [],
   );
-  useFrame(({ clock }) => {
-    if (mesh.current) mesh.current.position.y = -2.08 + 4.2 * Math.max(0.02, Math.min(0.98, fractionRef.current));
-    material.uniforms.uTime.value = clock.elapsedTime * 0.48;
-    material.uniforms.uOpacity.value = presence.current;
+  useFrame(({ clock, size }) => {
+    const p = presence.current;
+    if (mesh.current) mesh.current.visible = p > 0.01;
+    material.uniforms.uTime.value = clock.elapsedTime * (reducedMotion ? 0.15 : 1);
+    material.uniforms.uLevel.value = WATER.f;
+    material.uniforms.uOn.value = p;
+    material.uniforms.uAspect.value = size.width / Math.max(1, size.height);
   });
   useEffect(() => () => { geometry.dispose(); material.dispose(); }, [geometry, material]);
-  return <mesh ref={mesh} position={[0, 1, 0]} geometry={geometry} material={material} renderOrder={3} dispose={null} />;
-}
-
-function TankFrame({ presence }: { presence: Presence }) {
-  const box = useMemo(() => new BoxGeometry(8.8, 4.5, 1.65), []);
-  const edges = useMemo(() => new EdgesGeometry(box), [box]);
-  const material = useMemo(() => new LineBasicMaterial({ color: '#83d9ed', transparent: true, opacity: 0.52 }), []);
-  const object = useMemo(() => new LineSegments(edges, material), [edges, material]);
-  useFrame(() => { material.opacity = 0.52 * presence.current; });
-  useEffect(() => () => { box.dispose(); edges.dispose(); material.dispose(); }, [box, edges, material]);
-  return <primitive object={object} dispose={null} />;
-}
-
-function TankScaleTicks({ presence }: { presence: Presence }) {
-  const strong = useMemo(() => new MeshBasicMaterial({ color: '#9bdde4', transparent: true, opacity: 0.56 }), []);
-  const soft = useMemo(() => new MeshBasicMaterial({ color: '#9bdde4', transparent: true, opacity: 0.27 }), []);
-  useFrame(() => {
-    strong.opacity = 0.56 * presence.current;
-    soft.opacity = 0.27 * presence.current;
-  });
-  useEffect(() => () => { strong.dispose(); soft.dispose(); }, [strong, soft]);
-  return (
-    <group position={[-4.39, 0, 0.86]}>
-      {[0, 0.25, 0.5, 0.75, 1].map((fraction) => {
-        const edge = fraction === 0 || fraction === 1;
-        return (
-          <mesh key={fraction} position={[0.07, -2.04 + fraction * 4.08, 0]} material={edge ? strong : soft} dispose={null}>
-            <boxGeometry args={[edge ? 0.24 : 0.14, 0.014, 0.018]} />
-          </mesh>
-        );
-      })}
-    </group>
-  );
+  return <mesh ref={mesh} geometry={geometry} material={material} renderOrder={100} frustumCulled={false} dispose={null} />;
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1084,28 +898,37 @@ function SceneContent({ visible }: { visible: boolean }) {
   const camera = useThree((s) => s.camera);
   const scroll = useRef(0);
   const mouse = useRef({ x: 0, y: 0 });
-  const presence = useRef(1); // 1 = underwater scene, 0 = tank scene
-  const tankPresence = useRef(0);
+  const world = useRef(1); // the underwater world (home, dams and predictions)
+  const ceiling = useRef(1); // from-below water ceiling + sun halo (home / dams)
+  const reservoir = useRef(0); // screen-space waterline (predictions)
   const look = useRef(new Vector3(0, 6, -6));
   const goal = useMemo(() => new Vector3(), []);
-  const show = mode === 'underwater';
-  const tank = mode === 'tank';
+  const home = mode === 'underwater';
+  const res = mode === 'tank';
 
   useFrame((_, delta) => {
     if (!visible) return;
     const dt = Math.min(delta, 0.05);
-    presence.current += ((show ? 1 : 0) - presence.current) * Math.min(1, dt * 2.4);
-    tankPresence.current += ((tank ? 1 : 0) - tankPresence.current) * Math.min(1, dt * 2.4);
+    const k = Math.min(1, dt * 2.4);
+    world.current += ((home || res ? 1 : 0) - world.current) * k;
+    ceiling.current += ((home ? 1 : 0) - ceiling.current) * k;
+    reservoir.current += ((res ? 1 : 0) - reservoir.current) * k;
 
-    const dive = Math.min(scroll.current * 0.0016, 3.0); // scrolling dives the camera deeper
-    const baseY = tank ? 1.8 : 0.5 - dive;
-    const camX = (tank ? 1.65 : 0) + mouse.current.x * (tank ? 0.32 : 0.5);
-    const camY = baseY - mouse.current.y * (tank ? 0.12 : 0.2);
+    // animated waterline: follows the reservoir fill (or the predicted fill when that toggle is on)
+    const s = useAppStore.getState();
+    const target = Math.max(0.015, Math.min(0.985, s.showPredicted ? s.predictedFraction : s.tankFraction));
+    if (reservoir.current < 0.02) WATER.f = target;
+    else WATER.f += (target - WATER.f) * (1 - Math.exp(-dt * 2.4));
+    WATER.on = reservoir.current;
+
+    // home/dams: camera tilts up at the ceiling and dives with scroll.
+    // predictions: camera is level, so screen height == waterline height.
+    const dive = res ? 0 : Math.min(scroll.current * 0.0016, 3.0);
+    const camX = mouse.current.x * (res ? 0.3 : 0.5);
+    const camY = res ? RES_CAM.y : 0.5 - dive - mouse.current.y * 0.2;
     camera.position.x += (camX - camera.position.x) * Math.min(1, dt * 1.4);
     camera.position.y += (camY - camera.position.y) * Math.min(1, dt * 1.4);
-
-    if (tank) goal.set(1.35, baseY, -5);
-    else goal.set(mouse.current.x * 1.4, camY + PITCH_RISE - mouse.current.y * 0.5, -6);
+    goal.set(mouse.current.x * (res ? 0.6 : 1.4), camY + PITCH_RISE * (1 - reservoir.current) - (res ? 0 : mouse.current.y * 0.5), -6);
     look.current.lerp(goal, Math.min(1, dt * 1.8));
     camera.lookAt(look.current);
   });
@@ -1167,15 +990,15 @@ function SceneContent({ visible }: { visible: boolean }) {
   return (
     <>
       <color attach="background" args={['#000000']} />
-      <Dome presence={presence} />
-      <WaterSurface presence={presence} reducedMotion={reducedMotion} segments={hi ? 240 : mid ? 160 : 100} />
-      <SunGlow presence={presence} />
-      <CausticFloor position={[0, SEABED_Y, -30]} size={[140, 140]} tiling={0.11} fadeRate={0.03} strength={0.9} presence={presence} reducedMotion={reducedMotion} />
-      <MarineSnow presence={presence} reducedMotion={reducedMotion} amount={hi ? 900 : mid ? 450 : 200} />
-      <FishSchool presence={presence} reducedMotion={reducedMotion} amount={hi ? 12 : mid ? 7 : 4} />
-      <ScrollBubbles presence={presence} amount={hi ? 360 : mid ? 190 : 80} />
-      <RayShafts presence={presence} reducedMotion={reducedMotion} count={hi ? 16 : mid ? 11 : 7} />
-      <Tank presence={tankPresence} />
+      <Dome presence={world} />
+      <WaterSurface presence={ceiling} reducedMotion={reducedMotion} segments={hi ? 240 : mid ? 160 : 100} />
+      <SunGlow presence={ceiling} />
+      <CausticFloor position={[0, SEABED_Y, -30]} size={[140, 140]} tiling={0.11} fadeRate={0.03} strength={0.9} presence={world} reducedMotion={reducedMotion} />
+      <MarineSnow presence={world} reducedMotion={reducedMotion} amount={hi ? 900 : mid ? 450 : 200} />
+      <FishSchool presence={world} reducedMotion={reducedMotion} amount={hi ? 12 : mid ? 7 : 4} />
+      <ScrollBubbles presence={world} amount={hi ? 360 : mid ? 190 : 80} />
+      <RayShafts presence={world} reducedMotion={reducedMotion} count={hi ? 16 : mid ? 11 : 7} />
+      <ReservoirMask presence={reservoir} reducedMotion={reducedMotion} />
       {hi && (
         <EffectComposer multisampling={4}>
           <Bloom intensity={0.55} luminanceThreshold={0.7} luminanceSmoothing={0.3} mipmapBlur />

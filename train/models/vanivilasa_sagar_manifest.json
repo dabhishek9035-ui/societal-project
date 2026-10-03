@@ -5,15 +5,15 @@
   "sequence_length": 14,
   "best_epoch_by_horizon": {
     "t+1": 14,
-    "t+7": 4,
-    "t+14": 12,
-    "t+30": 3
+    "t+7": 5,
+    "t+14": 4,
+    "t+30": 4
   },
   "final_fit_epochs_by_horizon": {
     "t+1": 14,
-    "t+7": 4,
-    "t+14": 12,
-    "t+30": 3
+    "t+7": 5,
+    "t+14": 4,
+    "t+30": 4
   },
   "cv_folds": [
     {
@@ -24,10 +24,10 @@
       "val_end": "2024-11-14",
       "val_coverage_days": 190,
       "best_epochs": {
-        "t+1": 60,
-        "t+7": 4,
-        "t+14": 14,
-        "t+30": 3
+        "t+1": 40,
+        "t+7": 5,
+        "t+14": 4,
+        "t+30": 4
       }
     },
     {
@@ -39,8 +39,8 @@
       "val_coverage_days": 190,
       "best_epochs": {
         "t+1": 14,
-        "t+7": 10,
-        "t+14": 12,
+        "t+7": 9,
+        "t+14": 9,
         "t+30": 2
       }
     },
@@ -55,7 +55,7 @@
         "t+1": 13,
         "t+7": 2,
         "t+14": 3,
-        "t+30": 70
+        "t+30": 39
       }
     }
   ],
@@ -63,7 +63,7 @@
   "model_shrink_by_horizon": {
     "t+1": 0.75,
     "t+7": 0.75,
-    "t+14": 0.5,
+    "t+14": 0.75,
     "t+30": 0.5
   },
   "test_origins": 245,
@@ -82,20 +82,20 @@
       "selected": "recent_trend",
       "validation_mae_tmc": {
         "persistence": 0.14885,
-        "model": 0.14244,
+        "model": 0.14069,
         "recent_trend": 0.14411,
         "seasonal_naive": 3.88045
       },
       "candidates": {
         "model": {
-          "pooled_mae_skill_pct": 4.306,
+          "pooled_mae_skill_pct": 5.48,
           "fold_mae_skill_pct": [
-            6.61,
+            11.034,
             1.894,
             4.558
           ],
           "folds_won": 3,
-          "bootstrap_p5_skill_pct": -2.267,
+          "bootstrap_p5_skill_pct": -0.125,
           "qualified": false
         },
         "recent_trend": {
@@ -132,20 +132,20 @@
       "selected": "recent_trend",
       "validation_mae_tmc": {
         "persistence": 0.50417,
-        "model": 0.45932,
+        "model": 0.46434,
         "recent_trend": 0.45487,
         "seasonal_naive": 3.84747
       },
       "candidates": {
         "model": {
-          "pooled_mae_skill_pct": 8.896,
+          "pooled_mae_skill_pct": 7.9,
           "fold_mae_skill_pct": [
-            19.143,
-            1.695,
-            3.856
+            17.626,
+            0.024,
+            3.703
           ],
           "folds_won": 3,
-          "bootstrap_p5_skill_pct": -2.113,
+          "bootstrap_p5_skill_pct": -2.673,
           "qualified": false
         },
         "recent_trend": {
@@ -182,20 +182,20 @@
       "selected": "recent_trend",
       "validation_mae_tmc": {
         "persistence": 0.86905,
-        "model": 0.77808,
+        "model": 0.7854,
         "recent_trend": 0.75493,
         "seasonal_naive": 3.8001
       },
       "candidates": {
         "model": {
-          "pooled_mae_skill_pct": 10.468,
+          "pooled_mae_skill_pct": 9.625,
           "fold_mae_skill_pct": [
-            20.127,
-            4.994,
-            3.921
+            19.626,
+            -1.433,
+            5.989
           ],
-          "folds_won": 3,
-          "bootstrap_p5_skill_pct": -1.848,
+          "folds_won": 2,
+          "bootstrap_p5_skill_pct": -5.733,
           "qualified": false
         },
         "recent_trend": {
@@ -226,26 +226,26 @@
       "trend_lookback_days": 30,
       "trend_max_observation_gap_days": 90,
       "trend_shrink": 0.25,
-      "model_shrink": 0.5
+      "model_shrink": 0.75
     },
     "t+30": {
       "selected": "recent_trend",
       "validation_mae_tmc": {
         "persistence": 1.66479,
-        "model": 1.45613,
+        "model": 1.42951,
         "recent_trend": 1.45751,
         "seasonal_naive": 3.72073
       },
       "candidates": {
         "model": {
-          "pooled_mae_skill_pct": 12.534,
+          "pooled_mae_skill_pct": 14.133,
           "fold_mae_skill_pct": [
-            21.934,
-            15.767,
-            0.231
+            24.459,
+            15.859,
+            1.743
           ],
           "folds_won": 3,
-          "bootstrap_p5_skill_pct": -6.758,
+          "bootstrap_p5_skill_pct": -5.684,
           "qualified": false
         },
         "recent_trend": {
@@ -375,23 +375,41 @@
     },
     "t+7": {
       "persistence": 0.26723,
-      "model": 0.18584,
+      "model": 0.19328,
       "recent_trend": 0.22076,
       "seasonal_naive": 0.73479
     },
     "t+14": {
       "persistence": 0.49701,
-      "model": 0.41598,
+      "model": 0.27743,
       "recent_trend": 0.40047,
       "seasonal_naive": 0.75965
     },
     "t+30": {
       "persistence": 1.06362,
-      "model": 0.72894,
+      "model": 0.78439,
       "recent_trend": 0.857,
       "seasonal_naive": 0.86848
     }
   },
+  "seed_runs": [
+    {
+      "run": 0,
+      "seed": 14268,
+      "oof_score_pct": 9.636
+    },
+    {
+      "run": 1,
+      "seed": 22187,
+      "oof_score_pct": 9.636
+    },
+    {
+      "run": 2,
+      "seed": 30106,
+      "oof_score_pct": 9.636
+    }
+  ],
+  "selected_seed_run": 0,
   "feature_columns": [
     "Percentage Full",
     "Reservoir Level (ft)",
