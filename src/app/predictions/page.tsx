@@ -524,11 +524,14 @@ export default function PredictionsPage() {
       : undefined;
   const isHistoricalEstimate = forecast?.source === 'historical_estimate';
   const isDemoForecast = forecast?.source === 'demo';
+  const isBaselineForecast = forecast?.strategies?.[horizon] === 'recent_trend';
   const hasForecastBand = forecast?.predictions.some((point) => point.lower !== undefined && point.upper !== undefined) ?? false;
   const forecastMethodLabel = isHistoricalEstimate
     ? 'HISTORICAL ESTIMATE'
     : isDemoForecast
       ? 'DEMO FORECAST'
+      : isBaselineForecast
+        ? 'TREND BASELINE'
       : forecast?.strategies?.[horizon] === 'recent_trend'
         ? 'TREND BASELINE'
         : forecast?.strategies?.[horizon] === 'persistence'
@@ -662,8 +665,8 @@ export default function PredictionsPage() {
   const beats = metrics.length ? (metrics.filter((m) => Math.abs(m.predicted - m.actual) < Math.abs(m.persistence - m.actual)).length / metrics.length) * 100 : 0;
   const metricsSource = metrics.length && metrics.every((item) => item.source === metrics[0].source) ? metrics[0].source : 'mixed';
   const metricsSourceLabel = metrics.length === 0
-    ? isHistoricalEstimate ? 'ESTIMATE' : isDemoForecast ? 'DEMO' : 'MODEL'
-    : metricsSource === 'historical_estimate' ? 'ESTIMATE' : metricsSource === 'demo' ? 'DEMO' : metricsSource === 'mixed' ? 'MIXED FORECAST' : 'MODEL';
+    ? isHistoricalEstimate ? 'ESTIMATE' : isDemoForecast ? 'DEMO' : isBaselineForecast ? 'TREND' : 'MODEL'
+    : metricsSource === 'historical_estimate' ? 'ESTIMATE' : metricsSource === 'demo' ? 'DEMO' : isBaselineForecast ? 'TREND' : metricsSource === 'mixed' ? 'MIXED FORECAST' : 'MODEL';
   const errorPath = metrics.map((m, i) => `${i === 0 ? 'M' : 'L'} ${i * 18} ${34 - Math.min(29, Math.abs(m.predicted - m.actual) * 2)}`).join(' ');
 
   const filteredDams = dams.filter((item) => `${item.name} ${item.location} ${item.river}`.toLowerCase().includes(search.toLowerCase()));
@@ -792,7 +795,7 @@ export default function PredictionsPage() {
                   <span>{(currentFraction * 100).toFixed(0)}% of active range</span>
                 </div>
                 <div className="glass-card kpi">
-                  <span className="data-label">{isHistoricalEstimate ? "Estimated" : isDemoForecast ? "Demo forecast" : "Predicted"} · {horizon}-day</span>
+                  <span className="data-label">{isHistoricalEstimate ? "Estimated" : isDemoForecast ? "Demo forecast" : isBaselineForecast ? "Trend baseline" : "Predicted"} · {horizon}-day</span>
                   <strong>{forecastReady ? <>{fmt(predictedLevel)} <small>{dam.unit}</small></> : '—'}</strong>
                   <span>
                     {forecastReady
@@ -876,7 +879,7 @@ export default function PredictionsPage() {
                   <div className="chart-foot">
                     <span><span className="risk-dot" /> Red zone begins above FRL</span>
                     <span>
-                      {forecastQuery.isFetching ? 'Updating forecast' : isHistoricalEstimate ? 'Historical estimate only; uncertainty range is not calibrated' : isDemoForecast ? 'Illustrative demo forecast and range' : hasForecastBand ? 'Shaded band shows the confidence range, which widens with horizon' : 'Uncertainty band unavailable for this forecast'} <CircleHelp size={12} />
+                      {forecastQuery.isFetching ? 'Updating forecast' : isHistoricalEstimate ? 'Historical estimate only; uncertainty range is not calibrated' : isDemoForecast ? 'Illustrative demo forecast and range' : isBaselineForecast ? 'Trend baseline range; it is not calibrated model confidence' : hasForecastBand ? 'Shaded band shows the confidence range, which widens with horizon' : 'Uncertainty band unavailable for this forecast'} <CircleHelp size={12} />
                     </span>
                   </div>
                 </section>
@@ -941,8 +944,8 @@ export default function PredictionsPage() {
                       <strong>{modelError !== undefined && actual ? `${((modelError / Math.max(0.01, Math.abs(actual.level))) * 100).toFixed(2)}%` : '—'}</strong>
                     </div>
                     <div className="result-stat">
-                      <span className="data-label">{isHistoricalEstimate ? 'Estimate vs. persistence' : isDemoForecast ? 'Demo vs. persistence' : 'Vs. persistence'}</span>
-                      <strong>{modelError !== undefined && persistenceError !== undefined ? (modelError < persistenceError ? (isHistoricalEstimate ? 'Estimate wins' : isDemoForecast ? 'Demo wins' : 'Model wins') : 'Baseline wins') : '—'}</strong>
+                      <span className="data-label">{isHistoricalEstimate ? 'Estimate vs. persistence' : isDemoForecast ? 'Demo vs. persistence' : isBaselineForecast ? 'Trend vs. persistence' : 'Vs. persistence'}</span>
+                      <strong>{modelError !== undefined && persistenceError !== undefined ? (modelError < persistenceError ? (isHistoricalEstimate ? 'Estimate wins' : isDemoForecast ? 'Demo wins' : isBaselineForecast ? 'Trend wins' : 'Model wins') : 'Baseline wins') : '—'}</strong>
                     </div>
                   </div>
 
@@ -966,9 +969,9 @@ export default function PredictionsPage() {
                 <section className="glass-card confidence-card">
                   <div className="card-head">
                     <div>
-                      <Eyebrow>{isHistoricalEstimate ? 'HISTORICAL ESTIMATE & PERSISTENCE' : isDemoForecast ? 'DEMO FORECAST & PERSISTENCE' : 'MODEL CONFIDENCE & PERSISTENCE'}</Eyebrow>
-                      <h2>{isHistoricalEstimate ? 'How does this estimate compare?' : isDemoForecast ? 'Illustrative demo forecast' : 'How does the model compare?'}</h2>
-                      <p>{isHistoricalEstimate ? 'Historical estimates use a simple frontend heuristic; confidence is not calibrated.' : 'Persistence assumes the last observed level holds steady.'}</p>
+                      <Eyebrow>{isHistoricalEstimate ? 'HISTORICAL ESTIMATE & PERSISTENCE' : isDemoForecast ? 'DEMO FORECAST & PERSISTENCE' : isBaselineForecast ? 'TREND BASELINE & PERSISTENCE' : 'MODEL CONFIDENCE & PERSISTENCE'}</Eyebrow>
+                      <h2>{isHistoricalEstimate ? 'How does this estimate compare?' : isDemoForecast ? 'Illustrative demo forecast' : isBaselineForecast ? 'How does the trend compare?' : 'How does the model compare?'}</h2>
+                      <p>{isHistoricalEstimate ? 'Historical estimates use a simple frontend heuristic; confidence is not calibrated.' : isBaselineForecast ? 'Model artifacts are unavailable, so this uses a discounted recent trend.' : 'Persistence assumes the last observed level holds steady.'}</p>
                     </div>
                     <span className="tag">NAÏVE BASELINE</span>
                   </div>
@@ -996,7 +999,7 @@ export default function PredictionsPage() {
                             <strong>{confidence ? `${Math.round(confidence * 100)}%` : '—'}</strong>
                           </span>
                           <span className="value-pair">
-                            <span>{f?.source === "historical_estimate" ? "Estimate" : f?.source === "demo" ? "Demo" : "Model"} <strong>{prediction !== undefined ? `${fmt(prediction)} ${dam.unit}` : '—'}</strong></span>
+                            <span>{f?.source === "historical_estimate" ? "Estimate" : f?.source === "demo" ? "Demo" : f?.strategies?.[h] === "recent_trend" ? "Trend" : "Model"} <strong>{prediction !== undefined ? `${fmt(prediction)} ${dam.unit}` : '—'}</strong></span>
                             <span>Persistence <strong>{pers !== undefined ? `${fmt(pers)} ${dam.unit}` : '—'}</strong></span>
                           </span>
                           <span className={`skill-note ${skill !== undefined && skill > 0 ? 'positive' : ''}`}>
@@ -1017,6 +1020,8 @@ export default function PredictionsPage() {
                   ? 'This backdated forecast is a synthetic estimate, not a model backtest. Its confidence range is suppressed because it is not calibrated.'
                   : isDemoForecast
                     ? 'Demo data and forecasts are illustrative and do not come from the trained reservoir model.'
+                    : isBaselineForecast
+                      ? 'Model artifacts are unavailable; the backend is showing a discounted recent-trend baseline from validated reservoir observations.'
                     : 'The backend applies the saved persistence, recent-trend, or Delta-LSTM strategy for each horizon.'}
               </p>
             </div>
@@ -1219,3 +1224,5 @@ function DamDetails({ dam, currentLevel, currentDate }: { dam: Dam; currentLevel
     </section>
   );
 }
+
+

@@ -15,6 +15,43 @@ class ReservoirService:
         self._cache = {}
         self._summary_cache = None
 
+    @staticmethod
+    def _number(row: pd.Series, column: str, default: float = 0.0) -> float:
+        value = pd.to_numeric(row.get(column), errors="coerce")
+        return float(value) if pd.notna(value) else default
+
+    def _observations(self, dam_id: str) -> pd.DataFrame:
+        """Return displayable observations, even before generated features exist."""
+        feature_path = os.path.join(FEATURES_DIR, f"{dam_id}_features.csv")
+        source_path = os.path.join(IMD_DIR, f"{dam_id}_dam_ready.csv")
+        # The cleaned source is authoritative for published telemetry. Feature
+        # files are generated snapshots and may lag or outlive a source refresh.
+        path = source_path if os.path.exists(source_path) else feature_path
+        if not os.path.exists(path):
+            return pd.DataFrame()
+
+        frame = pd.read_csv(path)
+        if "Date" not in frame or frame.empty:
+            return pd.DataFrame()
+        frame["Date"] = pd.to_datetime(frame["Date"], errors="coerce")
+        frame = frame.dropna(subset=["Date"]).sort_values("Date").drop_duplicates("Date", keep="last")
+        if frame.empty:
+            return frame
+
+        capacity = float(DAM_METADATA[dam_id]["live_capacity_tmc"])
+        if "Current_Storage_TMC" not in frame:
+            storage = pd.Series(np.nan, index=frame.index, dtype=float)
+            for column in ("Live Capacity (TMC)", "Gross Capacity (TMC)"):
+                if column in frame:
+                    storage = storage.combine_first(pd.to_numeric(frame[column], errors="coerce"))
+            if "Percentage Full" in frame:
+                storage = storage.combine_first(
+                    pd.to_numeric(frame["Percentage Full"], errors="coerce").clip(0, 100) * capacity / 100.0
+                )
+            frame["Current_Storage_TMC"] = storage
+        frame["Current_Storage_TMC"] = pd.to_numeric(frame["Current_Storage_TMC"], errors="coerce").clip(0, capacity)
+        return frame.dropna(subset=["Current_Storage_TMC"])
+
     def get_all_reservoirs(self) -> List[Dict[str, Any]]:
         """Returns live summary list for all 10 Karnataka reservoirs."""
         reservoirs = []
@@ -96,34 +133,18 @@ class ReservoirService:
 
     def get_latest_reading(self, dam_id: str) -> Dict[str, Any]:
         """Fetches the latest telemetry observation for a given dam."""
-        feat_path = os.path.join(FEATURES_DIR, f"{dam_id}_features.csv")
-        if not os.path.exists(feat_path):
-            return {}
-
         try:
-            df = pd.read_csv(feat_path)
+            df = self._observations(dam_id)
             if df.empty:
                 return {}
             last_row = df.iloc[-1]
-            date_val = str(last_row.get("Date", ""))
-
-            # A feature file can outlive or be newer than its cleaned source
-            # after a reservoir-name filter removes contaminated observations.
-            # Never publish that stale row as the current dam reading.
-            source_path = os.path.join(IMD_DIR, f"{dam_id}_dam_ready.csv")
-            if os.path.exists(source_path):
-                source_dates = pd.read_csv(source_path, usecols=["Date"])["Date"]
-                source_latest = pd.to_datetime(source_dates, errors="coerce").max()
-                feature_latest = pd.to_datetime(date_val, errors="coerce")
-                if pd.isna(source_latest) or pd.isna(feature_latest) or feature_latest > source_latest:
-                    return {}
-            
-            storage = float(last_row.get("Current_Storage_TMC", 0.0))
-            level = float(last_row.get("Reservoir Level (ft)", 0.0)) if "Reservoir Level (ft)" in last_row and pd.notna(last_row["Reservoir Level (ft)"]) else 0.0
-            inflow = float(last_row.get("Inflow (Cusecs)", 0.0)) if "Inflow (Cusecs)" in last_row and pd.notna(last_row["Inflow (Cusecs)"]) else 0.0
-            outflow = float(last_row.get("Outflow to River (Cusecs)", 0.0)) if "Outflow to River (Cusecs)" in last_row and pd.notna(last_row["Outflow to River (Cusecs)"]) else 0.0
-            rain = float(last_row.get("RAINFALL", 0.0)) if "RAINFALL" in last_row and pd.notna(last_row["RAINFALL"]) else 0.0
-            catchment_rain = float(last_row.get("era5_catchment_rain_m", 0.0)) if "era5_catchment_rain_m" in last_row and pd.notna(last_row["era5_catchment_rain_m"]) else 0.0
+            date_val = last_row["Date"].strftime("%Y-%m-%d")
+            storage = self._number(last_row, "Current_Storage_TMC")
+            level = self._number(last_row, "Reservoir Level (ft)")
+            inflow = self._number(last_row, "Inflow (Cusecs)")
+            outflow = self._number(last_row, "Outflow to River (Cusecs)")
+            rain = self._number(last_row, "RAINFALL")
+            catchment_rain = self._number(last_row, "era5_catchment_rain_m")
 
             return {
                 "date": date_val,
@@ -140,24 +161,9 @@ class ReservoirService:
 
     def get_timeseries(self, dam_id: str, days: int = 120) -> List[Dict[str, Any]]:
         """Returns historical time series for hydrograph charting."""
-        feat_path = os.path.join(FEATURES_DIR, f"{dam_id}_features.csv")
-        if not os.path.exists(feat_path):
-            return []
-
-        df = pd.read_csv(feat_path)
+        df = self._observations(dam_id)
         if df.empty:
             return []
-
-        source_path = os.path.join(IMD_DIR, f"{dam_id}_dam_ready.csv")
-        if os.path.exists(source_path):
-            source_dates = pd.read_csv(source_path, usecols=["Date"])["Date"]
-            source_latest = pd.to_datetime(source_dates, errors="coerce").max()
-            feature_latest = pd.to_datetime(df["Date"], errors="coerce").max()
-            if pd.isna(source_latest) or pd.isna(feature_latest) or feature_latest > source_latest:
-                return []
-
-        df["Date"] = pd.to_datetime(df["Date"])
-        df = df.sort_values("Date").reset_index(drop=True)
 
         sliced = df.iloc[-days:].copy()
         meta = DAM_METADATA.get(dam_id, {})
@@ -165,11 +171,11 @@ class ReservoirService:
 
         series = []
         for _, row in sliced.iterrows():
-            st = float(row.get("Current_Storage_TMC", 0.0))
-            lvl = float(row.get("Reservoir Level (ft)", 0.0)) if pd.notna(row.get("Reservoir Level (ft)")) else 0.0
-            inf = float(row.get("Inflow (Cusecs)", 0.0)) if pd.notna(row.get("Inflow (Cusecs)")) else 0.0
-            outf = float(row.get("Outflow to River (Cusecs)", 0.0)) if pd.notna(row.get("Outflow to River (Cusecs)")) else 0.0
-            rn = float(row.get("RAINFALL", 0.0)) if pd.notna(row.get("RAINFALL")) else 0.0
+            st = self._number(row, "Current_Storage_TMC")
+            lvl = self._number(row, "Reservoir Level (ft)")
+            inf = self._number(row, "Inflow (Cusecs)")
+            outf = self._number(row, "Outflow to River (Cusecs)")
+            rn = self._number(row, "RAINFALL")
 
             series.append({
                 "date": row["Date"].strftime("%Y-%m-%d"),

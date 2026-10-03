@@ -16,6 +16,7 @@ from backend.models import (
     FEATURES_DIR,
     IMD_DIR,
 )
+from backend.services.reservoir_service import ReservoirService
 
 class ForecastService:
     def __init__(self):
@@ -58,6 +59,55 @@ class ForecastService:
 
         return (model, feat_cols), scaler_x, scaler_y
 
+    def _baseline_forecast(self, dam_id: str) -> Dict[str, Any]:
+        """Provide an honest, usable forecast when generated model artifacts are absent."""
+        meta = DAM_METADATA[dam_id]
+        observations = ReservoirService().get_timeseries(dam_id, days=90)
+        if not observations:
+            raise FileNotFoundError(f"No observations available for reservoir {dam_id}")
+
+        latest = observations[-1]
+        as_of_date = pd.to_datetime(latest["date"])
+        current_storage = float(latest["storage_tmc"])
+        max_capacity = float(meta["live_capacity_tmc"])
+        dated = [(pd.to_datetime(item["date"]), float(item["storage_tmc"])) for item in observations]
+        prior = [item for item in dated if 14 <= (as_of_date - item[0]).days <= 45]
+        daily_trend = 0.0
+        if prior:
+            prior_date, prior_storage = prior[-1]
+            elapsed = max(1, (as_of_date - prior_date).days)
+            daily_trend = (current_storage - prior_storage) / elapsed
+        strategy = "recent_trend" if prior else "persistence"
+        horizons = [1, 7, 14, 30]
+        points = []
+        for horizon in horizons:
+            delta = daily_trend * horizon * 0.25 if prior else 0.0
+            storage = float(np.clip(current_storage + delta, 0.0, max_capacity))
+            spread = max(0.5, storage * {1: .02, 7: .05, 14: .08, 30: .12}[horizon])
+            points.append({
+                "horizon_days": horizon,
+                "target_date": (as_of_date + timedelta(days=horizon)).strftime("%Y-%m-%d"),
+                "predicted_storage_tmc": round(storage, 3),
+                "predicted_delta_tmc": round(delta, 3),
+                "percentage_full": round(storage / max_capacity * 100.0, 1),
+                "lower_bound_tmc": round(max(0.0, storage - spread), 3),
+                "upper_bound_tmc": round(min(max_capacity, storage + spread), 3),
+                "risk_level": "Normal",
+            })
+        daily = []
+        values = np.interp(range(31), [0, *horizons], [current_storage, *(p["predicted_storage_tmc"] for p in points)])
+        for day, storage in enumerate(values):
+            storage = float(np.clip(storage, 0.0, max_capacity))
+            daily.append({"day_offset": day, "date": (as_of_date + timedelta(days=day)).strftime("%Y-%m-%d"), "predicted_storage_tmc": round(storage, 3), "fill_percentage": round(storage / max_capacity * 100.0, 1)})
+        return {
+            "dam_id": dam_id, "dam_name": meta["name"], "as_of_date": as_of_date.strftime("%Y-%m-%d"),
+            "current_storage_tmc": round(current_storage, 3), "live_capacity_tmc": max_capacity,
+            "current_fill_percentage": round(current_storage / max_capacity * 100.0, 1),
+            "forecast_source": "baseline", "forecast_note": "Generated artifacts are unavailable; this is a discounted recent-trend baseline, not an LSTM forecast.",
+            "strategies": {str(horizon): strategy for horizon in horizons}, "forecast_horizons": points,
+            "daily_trajectory_30d": daily,
+        }
+
     def predict_forecast(self, dam_id: str, sequence_length: int = 14) -> Dict[str, Any]:
         """Runs the PyTorch Delta-LSTM model to forecast storage for t+1, t+7, t+14, and t+30 days."""
         meta = DAM_METADATA.get(dam_id)
@@ -65,8 +115,14 @@ class ForecastService:
             raise ValueError(f"Unknown reservoir id: {dam_id}")
 
         feat_path = os.path.join(FEATURES_DIR, f"{dam_id}_features.csv")
-        if not os.path.exists(feat_path):
-            raise FileNotFoundError(f"Features file not found for {dam_id}")
+        artifact_paths = (
+            feat_path,
+            os.path.join(MODELS_DIR, f"{dam_id}_lstm.pth"),
+            os.path.join(MODELS_DIR, f"{dam_id}_scaler_x.pkl"),
+            os.path.join(MODELS_DIR, f"{dam_id}_scaler_y.pkl"),
+        )
+        if not all(os.path.exists(path) for path in artifact_paths):
+            return self._baseline_forecast(dam_id)
 
         (model, feat_cols), scaler_x, scaler_y = self._load_model_and_scalers(dam_id)
 
@@ -101,10 +157,13 @@ class ForecastService:
 
         horizons = [1, 7, 14, 30]
         manifest_path = os.path.join(MODELS_DIR, f"{dam_id}_manifest.json")
+        manifest = {}
         strategies = {}
         trend_shrink = 0.25
         trend_max_gap_days = 90
         if os.path.exists(manifest_path):
+            with open(manifest_path, "r", encoding="utf-8") as file:
+                manifest = json.load(file)
             strategies = manifest.get("horizon_strategy", {})
             trend_config = strategies.get("t+30", {})
             trend_shrink = float(trend_config.get("trend_shrink", trend_shrink))
@@ -209,6 +268,7 @@ class ForecastService:
             "current_storage_tmc": round(current_storage, 3),
             "live_capacity_tmc": max_capacity,
             "current_fill_percentage": round((current_storage / max_capacity * 100.0), 1),
+            "forecast_source": "trained_model",
             "strategies": {
                 str(horizon): strategies.get(f"t+{horizon}", {}).get("selected", "persistence")
                 for horizon in horizons

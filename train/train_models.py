@@ -100,10 +100,10 @@ SHRINK_GRID = (1.0, 0.75, 0.5, 0.25)
 MIN_MODEL_OOF_DAYS = 365
 
 # --- Optimisation -----------------------------------------------------------
-EPOCHS = 300
+EPOCHS = 400
 BATCH_SIZE = 64
 EARLY_STOPPING_PATIENCE = 30
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 5e-4
 WEIGHT_DECAY = 1e-4
 # Gaussian noise on standardized inputs, training only (no backend change). Long-horizon
 # heads were peaking at 1-3 epochs, i.e. memorising monsoon years. Try 0.1 if that persists.

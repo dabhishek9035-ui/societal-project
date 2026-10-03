@@ -1,7 +1,7 @@
 export type Horizon = 1 | 7 | 14 | 30;
 export type LevelPoint = { date: string; level: number };
 export type ForecastPoint = { date: string; level: number; lower?: number; upper?: number };
-export type ForecastSource = 'trained_model' | 'historical_estimate' | 'demo';
+export type ForecastSource = 'trained_model' | 'baseline' | 'historical_estimate' | 'demo';
 export type Dam = {
   id: string;
   name: string;
